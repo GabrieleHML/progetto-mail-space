@@ -1,0 +1,38 @@
+/* You can add global styles to this file, and also import other style files */
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+/*
+:host {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+  }
+  
+  mat-dialog-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+  }
+  */
+
+.max-w-350 {
+  max-width: 350px;
+}
+
+.mdc-notched-outline__notch
+{
+  border-right: none;
+}
+.my-card {
+  margin-top: -150px; /* Sposta verso l'alto di 50px */
+  padding: 20px;
+}

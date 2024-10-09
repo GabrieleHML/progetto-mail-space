@@ -1,0 +1,25 @@
+<mat-toolbar class="bg-blue-500 text-white">
+  <div class="flex items-center">
+    <button mat-button class="text-white" [routerLink]="['/']">Home</button>
+    <button mat-button class="text-white" *ngIf="isLoggedIn$ | async" [routerLink]="['/mails']">Email</button>
+  </div>
+  
+  <span class="flex-1"></span>
+  
+  <div class="flex items-center">
+    <span *ngIf="currentUser$ | async as username" class="mr-2">{{ username }}</span>
+    <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="User profile and actions">
+      <mat-icon>account_circle</mat-icon>
+      <mat-icon>arrow_drop_down</mat-icon>
+    </button>
+    <mat-menu #menu="matMenu">
+      <button mat-menu-item *ngIf="!(isLoggedIn$ | async)" (click)="openLoginDialog()">Accedi</button>
+      <button mat-menu-item *ngIf="!(isLoggedIn$ | async)" (click)="openRegisterDialog()">Registrati</button>
+      <button mat-menu-item *ngIf="(isLoggedIn$ | async)" (click)="logout()">Esci</button>
+      <button mat-menu-item (click)="codice()">Codice</button>
+    </mat-menu>
+  </div>
+</mat-toolbar>
+
+<router-outlet></router-outlet>
+

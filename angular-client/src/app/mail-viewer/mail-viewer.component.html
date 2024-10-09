@@ -1,0 +1,46 @@
+<div class="mx-4 my-4 flex justify-between">
+    <button mat-fab extended [routerLink]="['/add-mail']">
+        <mat-icon>add</mat-icon>
+        Aggiungi
+    </button>
+
+    <form class="w-full max-w-sm" [formGroup]="form">
+        <mat-button-toggle-group name="ricerca" aria-label="Argomento ricerca">
+            <mat-button-toggle value="mittente">Mittente</mat-button-toggle>
+            <mat-button-toggle value="argomento">Argomento</mat-button-toggle>
+            <mat-button-toggle value="parola-chiave">Parole chiave</mat-button-toggle>
+        </mat-button-toggle-group>
+        <mat-form-field class="w-full max-w-350" appearance="outline">
+            <input matInput type="text" placeholder="Cerca" formControlName="cerca">
+            <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+    </form>
+</div>
+<p>Test</p>
+<div>
+    <mat-expansion-panel>
+        <mat-expansion-panel-header>
+            <mat-panel-title> <p>mario.rossi&#64;example.com</p> </mat-panel-title>
+            <mat-panel-description> <p>Proposta di collaborazione</p> </mat-panel-description>
+        </mat-expansion-panel-header>
+        <pre>
+            Caro Signor Bianchi,
+            Mi chiamo Mario Rossi e rappresento la società Innovatech. Siamo interessati a discutere una possibile collaborazione con la vostra azienda per un progetto innovativo nel settore delle tecnologie verdi. Crediamo che la vostra esperienza e competenza possano essere di grande valore per il successo del progetto.
+            Saremmo lieti di organizzare un incontro per discutere i dettagli e valutare le opportunità di collaborazione. Potrebbe gentilmente indicarci la sua disponibilità per la prossima settimana?
+            In attesa di un suo gentile riscontro, le porgo i miei più cordiali saluti.
+            Cordiali saluti,
+            Mario Rossi
+            Innovatech
+        </pre>
+    </mat-expansion-panel>
+</div>
+<p>Email effettive dell'utente</p>
+<div *ngFor="let email of emails">
+    <mat-expansion-panel>
+        <mat-expansion-panel-header>
+            <mat-panel-title>{{ email.mittente }}</mat-panel-title>
+            <mat-panel-description>{{ email.oggetto }}</mat-panel-description>
+        </mat-expansion-panel-header>
+        <pre>{{ email.corpo }}</pre>
+    </mat-expansion-panel>
+</div>

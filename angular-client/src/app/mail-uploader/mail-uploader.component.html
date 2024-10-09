@@ -1,0 +1,22 @@
+<div class="flex justify-center items-center h-full">
+    <mat-card class="my-card">
+        <form [formGroup]="form" (submit)="uploadMail()">
+            <h4>Carica la Mail</h4>
+            <mat-form-field class="w-full" appearance="outline">
+                <mat-label>Mittente</mat-label>
+                <input matInput type="text" placeholder="Inserisci il mittente" formControlName="mittente">
+            </mat-form-field>
+            <mat-form-field class="w-full" appearance="outline">
+                <mat-label>Oggetto</mat-label>
+                <input matInput type="text" placeholder="Inserisci l'oggetto" formControlName="oggetto">
+            </mat-form-field>
+            <mat-form-field class="w-full" appearance="outline">
+                <mat-label>Testo</mat-label>
+                <textarea matInput type="text" placeholder="Inserisci il testo della mail" formControlName="testo" rows="6"></textarea>
+            </mat-form-field>
+            <div class="flex justify-end">
+                <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">Carica</button>
+            </div>
+        </form>
+    </mat-card>
+</div>
