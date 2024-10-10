@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, FormGroupDirective, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -10,10 +10,13 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatSelectModule } from '@angular/material/select';
+import { MasSplitButtonModule } from '@material-spirit/ngx-split-button';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { NotificationService } from '../notification.service';
 import { EmailService } from '../email.service';
 import { CommonModule, NgFor } from '@angular/common';
+import { ErrorStateMatcher } from '@angular/material/core';
 
 @Component({
   selector: 'app-mail-viewer',
@@ -29,7 +32,11 @@ import { CommonModule, NgFor } from '@angular/common';
     MatExpansionModule,
     MatDividerModule,
     MatButtonToggleModule,
-    FormsModule, 
+    MatInputModule,
+    MatSelectModule,
+    MatFormFieldModule,
+    MasSplitButtonModule,
+    FormsModule,
     ReactiveFormsModule,
     RouterLink,
     RouterLinkActive,
@@ -40,6 +47,8 @@ import { CommonModule, NgFor } from '@angular/common';
 })
 export class MailViewerComponent {
   emails: any[] = [];
+  selectedOption: string = 'tutto';
+  searchText: string = '';
   protected form: FormGroup = new FormGroup({
     cerca: new FormControl('', Validators.required)
   });
@@ -61,6 +70,10 @@ export class MailViewerComponent {
     }
   }
 
+  handleFileEml(): void {
+    this.notifica.show("hai premuto .eml", "OK");
+  }
+
   getEmails(): void {
     this.emailService.getEmails().subscribe({
       next: (data) => {
@@ -74,6 +87,10 @@ export class MailViewerComponent {
 
   // TODO
   onSearch() {
-
+    var message: string = 'Stai cercando '+ this.searchText + ' in '+ this.selectedOption;
+    this.notifica.show(message, "OK");
+    console.log('Search for:', this.searchText, 'in', this.selectedOption);
+    this.selectedOption= 'tutto';
+    this. searchText = '';
   }
 }

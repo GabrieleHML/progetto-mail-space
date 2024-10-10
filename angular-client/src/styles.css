@@ -3,6 +3,19 @@
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
+.main-container {
+  margin-left: 10%;
+  margin-right: 10%;
+}
+
+.div-sopra {
+  margin-bottom: 100px; /* Aggiunge uno spazio di 20px sotto il div sopra */
+}
+
+.div-sotto {
+  margin-top: 100px; /* Aggiunge uno spazio di 20px sopra il div sotto */
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -28,11 +41,34 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   max-width: 350px;
 }
 
-.mdc-notched-outline__notch
-{
+.mdc-notched-outline__notch {
   border-right: none;
 }
+
 .my-card {
-  margin-top: -150px; /* Sposta verso l'alto di 50px */
+  margin-top: 100px; 
   padding: 20px;
 }
+
+.select-field {
+  width: 150px;
+  margin-right: 16px;
+}
+
+.text-field {
+  flex: 1;
+  margin-right: 16px;
+}
+
+.search-bar mat-form-field {
+  flex: 1;  /* Permette ai campi di input di allungarsi orizzontalmente */
+  margin-right: 16px; /* Aggiunge spazio tra i form field e il bottone */
+}
+
+.search-button {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+} 
