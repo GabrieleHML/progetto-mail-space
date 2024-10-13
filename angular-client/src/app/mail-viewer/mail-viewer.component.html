@@ -6,13 +6,13 @@
         </button>
         
         <mat-menu #dropdownMenu="matMenu">
-            <button mat-menu-item [routerLink]="['/add-mail']">aggiungi da testo</button>
-            <button mat-menu-item (click)="handleFileEml()">aggiungi da file .eml</button>
+            <button mat-menu-item [routerLink]="['/add-mail']">da testo</button>
+            <button mat-menu-item (click)="handleFileEml()">da file .eml</button>
         </mat-menu>
       </div>
       
-    <div>
-        <mat-form-field appearance="fill" class="select-field">
+    <div class="search-bar">
+        <mat-form-field appearance="fill" class="select-field" [subscriptSizing]="'dynamic'">
             <mat-label>Filtra per</mat-label>
             <mat-select [(value)]="selectedOption">
                 <mat-option value="tutto">Tutto</mat-option>
@@ -22,7 +22,7 @@
             </mat-select>
         </mat-form-field>
 
-        <mat-form-field class="text-field">
+        <mat-form-field class="text-field" [subscriptSizing]="'dynamic'">
             <mat-label>Cerca</mat-label>
             <input matInput [(ngModel)]="searchText" placeholder="Inserisci testo" required>
         </mat-form-field>

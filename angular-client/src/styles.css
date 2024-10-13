@@ -9,11 +9,11 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 }
 
 .div-sopra {
-  margin-bottom: 100px; /* Aggiunge uno spazio di 20px sotto il div sopra */
+  margin-bottom: 120px;
 }
 
 .div-sotto {
-  margin-top: 100px; /* Aggiunge uno spazio di 20px sopra il div sotto */
+  margin-top: 120px;
 }
 
 @tailwind base;
@@ -60,9 +60,9 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   margin-right: 16px;
 }
 
-.search-bar mat-form-field {
-  flex: 1;  /* Permette ai campi di input di allungarsi orizzontalmente */
-  margin-right: 16px; /* Aggiunge spazio tra i form field e il bottone */
+.search-bar {
+  display: flex;
+  align-items: start;
 }
 
 .search-button {
