@@ -10,11 +10,11 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { AuthService } from './auth.service';
+import { AuthService } from './services/auth.service';
 import { CommonModule } from '@angular/common';
 import { Observable, of } from 'rxjs';
 import { ConfirmationCodeComponent } from './confirmation-code/confirmation-code.component';
-import { NotificationService } from './notification.service';
+import { NotificationService } from './services/notification.service';
 
 @Component({
   selector: 'app-root',

@@ -13,10 +13,9 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatSelectModule } from '@angular/material/select';
 import { MasSplitButtonModule } from '@material-spirit/ngx-split-button';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { NotificationService } from '../notification.service';
-import { EmailService } from '../email.service';
+import { NotificationService } from '../services/notification.service';
+import { EmailService } from '../services/email.service';
 import { CommonModule, NgFor } from '@angular/common';
-import { ErrorStateMatcher } from '@angular/material/core';
 
 @Component({
   selector: 'app-mail-viewer',
@@ -70,8 +69,28 @@ export class MailViewerComponent {
     }
   }
 
-  handleFileEml(): void {
-    this.notifica.show("hai premuto .eml", "OK");
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+
+      // verifica l'estensione del file
+      if (file.name.toLowerCase().endsWith('.eml')) {
+        this.emailService.uploadEmailFile(file).subscribe({
+          next: (data) => {
+            console.log('File caricato con successo!', data);
+            this.notifica.show("File .eml caricato con successo!", "OK");
+          },
+          error: (err) => {
+            console.error('Errore caricamento file:', err);
+            this.notifica.show("Errore nel caricamento del file", "OK");
+          }
+        });
+      } else {
+        console.error('Il file selezionato non ha l\'estensione .eml');
+        this.notifica.show("Estensione del file non valida","OK");
+      }
+    }
   }
 
   getEmails(): void {

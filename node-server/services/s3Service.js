@@ -1,12 +1,13 @@
 const { s3, bucketName } = require('../config');
 
-exports.uploadEmail = async (userEmail, emailText) => {
+exports.uploadEmail = async (userEmail, body) => {
   const s3Key = `${userEmail}/${Date.now()}.txt`;
   const params = {
     Bucket: bucketName,
     Key: s3Key,
-    Body: emailText,
+    Body: body,
   };
+  console.log(params);
   const data = await s3.upload(params).promise();
   return data.Key;
 };

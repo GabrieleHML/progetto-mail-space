@@ -7,8 +7,9 @@
         
         <mat-menu #dropdownMenu="matMenu">
             <button mat-menu-item [routerLink]="['/add-mail']">da testo</button>
-            <button mat-menu-item (click)="handleFileEml()">da file .eml</button>
+            <button mat-menu-item (click)="fileInput.click()">da file .eml</button>
         </mat-menu>
+        <input #fileInput type="file" (change)="onFileSelected($event)" accept=".eml" style="display: none"/>
       </div>
       
     <div class="search-bar">
