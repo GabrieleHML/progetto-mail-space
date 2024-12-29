@@ -1,7 +1,7 @@
 require('dotenv').config();
 const AWS = require('aws-sdk');
 const { Pool } = require('pg');
-
+ 
 AWS.config.update({ region: 'eu-west-1' });
 
 const cognito = new AWS.CognitoIdentityServiceProvider();
@@ -9,11 +9,14 @@ const s3 = new AWS.S3();
 const comprehend = new AWS.Comprehend();
 
 const pool = new Pool({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_NAME,
-  password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT,
+  ssl: {
+    rejectUnauthorized: false
+  },
+  user: process.env.RDS_USERNAME,
+  host: process.env.RDS_HOSTNAME,
+  database: process.env.RDS_DB_NAME,
+  password: process.env.RDS_PASSWORD,
+  port: parseInt(process.env.RDS_PORT || '5432'),
 });
 
 module.exports = {

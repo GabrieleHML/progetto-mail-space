@@ -22,7 +22,6 @@ const processEmail = async (sender, subject, body, userEmail, res) => {
   try {
     // 2. Analizza il testo con Amazon Comprehend
     const analysisResult = await comprehendService.analyzeText(body);
-    // const analysisResult = await comprehendService.analyzeEmail(body);
     usedTerms = analysisResult.usedTerms;
     topic = analysisResult.topic;
     console.log("Argomento: ", topic);
@@ -43,6 +42,7 @@ const processEmail = async (sender, subject, body, userEmail, res) => {
       usedTerms,
       topic,
     };
+    console.log("EmailData: ", emailData);
     await dbService.insertEmail(emailData);
     console.log("OK: Caricamento RDS");
     res.json({ s3Key, usedTerms, topic });
