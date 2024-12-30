@@ -1,6 +1,6 @@
 const s3Service = require('../services/s3Service');
 const comprehendService = require('../services/comprehendService');
-const dbService = require('../services/dbService');
+const rdsService = require('../services/rdsService');
 const EmlParser = require('eml-parser');
 const fs = require('fs');
 const emlParser = require('eml-parser');
@@ -22,6 +22,7 @@ const processEmail = async (sender, subject, body, userEmail, res) => {
   try {
     // 2. Analizza il testo con Amazon Comprehend
     const analysisResult = await comprehendService.analyzeText(body);
+    // const analysisResult = await comprehendService.analyzeEmail(body);
     usedTerms = analysisResult.usedTerms;
     topic = analysisResult.topic;
     console.log("Argomento: ", topic);
@@ -42,8 +43,7 @@ const processEmail = async (sender, subject, body, userEmail, res) => {
       usedTerms,
       topic,
     };
-    console.log("EmailData: ", emailData);
-    await dbService.insertEmail(emailData);
+    await rdsService.insertEmail(emailData);
     console.log("OK: Caricamento RDS");
     res.json({ s3Key, usedTerms, topic });
   } catch (error) {
@@ -101,10 +101,53 @@ exports.uploadEmailFile = async (req, res) => {
   }
 };
 
-exports.getUserEmails = async (req, res) => {
+exports.getUserEmailsOrSearchBy = async (req, res) => {
   try {
-    const emails = await s3Service.getUserEmails(req.user.email);
-    res.json(emails);
+    const userEmail = req.user.email;
+    const option = req.body.option;
+    const word = req.body.word || ''; // Parola da cercare, nulla se l'opzione è 0
+
+    console.log("email: ",userEmail," option: ", option, " word: ",word); // TODO debug log
+
+    // Lista di email da inviare al Client
+    const emails_CLIENT = [];
+    
+    // Lista di email da RDS
+    let emails_RDS = [];
+
+    switch (option) {
+      case 0: // Tutte le email
+        emails_RDS = await rdsService.getUserEmails(userEmail);
+        break;
+      case 1: // Cerca per tutte mittente, argomento e termini usati
+        emails_RDS = await rdsService.searchByAll(userEmail, word);
+        break;
+      case 2: // Cerca per mittente
+        emails_RDS = await rdsService.searchBySender(userEmail, word);
+        break;
+      case 3: // Cerca per argomento
+        emails_RDS = await rdsService.searchByTopic(userEmail, word);
+        break;
+      case 4: // Cerca per termini usati
+        emails_RDS = await rdsService.searchByUsedTerms(userEmail, word);
+        break;
+      default: 
+        res.status(400).json({ message: 'Opzione non valida' });
+    }
+
+    console.log("emails_RDS dopo lo switch: ", emails_RDS);  // TODO debug log
+
+    // Per ogni email, ottengo il body da S3 e lo aggiungo alla lista da inviare al Client
+    for (const email of emails_RDS) {
+      const body = await s3Service.getEmailContent(email.s3_key);
+      emails_CLIENT.push({
+        sender: email.sender,
+        subject: email.subject,
+        body: body
+      });
+    }
+    console.log("le email: ", emails_CLIENT);
+    res.json(emails_CLIENT);
   } catch (error) {
     res.status(500).json({ message: 'Errore nella ricerca delle mail', error });
   }

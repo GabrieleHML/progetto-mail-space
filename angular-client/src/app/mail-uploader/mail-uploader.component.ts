@@ -47,7 +47,7 @@ export class MailUploaderComponent {
   uploadMail(): void {
     const { mittente, oggetto, testo } = this.form.value;
 
-    console.log(this.form.value);
+    console.log(this.form.value); // TODO log
 
     this.emailService.uploadEmail(mittente, oggetto, testo).subscribe({
       next: (response) => {

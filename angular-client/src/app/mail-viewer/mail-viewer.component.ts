@@ -16,6 +16,8 @@ import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { NotificationService } from '../services/notification.service';
 import { EmailService } from '../services/email.service';
 import { CommonModule, NgFor } from '@angular/common';
+import { Email } from '../models/email';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-mail-viewer',
@@ -45,7 +47,7 @@ import { CommonModule, NgFor } from '@angular/common';
   templateUrl: './mail-viewer.component.html',
 })
 export class MailViewerComponent {
-  emails: any[] = [];
+  emails: Email[] = []
   selectedOption: string = 'tutto';
   searchText: string = '';
   protected form: FormGroup = new FormGroup({
@@ -55,12 +57,13 @@ export class MailViewerComponent {
   constructor(
     private notifica: NotificationService,
     private emailService: EmailService,
+    private authService: AuthService,
     private fb: FormBuilder
   ) { }
 
+
   ngOnInit(): void {
-    // TODO riprende il metodo getEmails dopo aver configurato RDS
-    // this.getEmails();
+    this.getUserEmailsOrSearchBy(0);
     const state = history.state;
     if (state && state['message']) {
       this.notifica.show(state['message'], state['action']);
@@ -93,8 +96,24 @@ export class MailViewerComponent {
     }
   }
 
-  getEmails(): void {
-    this.emailService.getEmails().subscribe({
+  getSearchOptionValue(option: string): number {
+    const optionMap: { [key: string]: number } = {
+      'all': 1,
+      'sender': 2,
+      'topic': 3
+    };
+    return optionMap[option] ?? 4;
+  }
+  
+  /* @param option: 
+   * 0 getAll, 
+   * 1 searchByAll, 
+   * 2 searchBySender, 
+   * 3 searchByTopic, 
+   * 4 searchByUsedTerms
+  */
+  getUserEmailsOrSearchBy(option: number, word?: string): void {
+    this.emailService.getUserEmailsOrSearchBy(option, word).subscribe({
       next: (data) => {
         this.emails = data;
       },
@@ -102,14 +121,5 @@ export class MailViewerComponent {
         console.error('Errore durante il recupero delle email:', err);
       }
     });
-  }
-
-  // TODO
-  onSearch() {
-    var message: string = 'Stai cercando '+ this.searchText + ' in '+ this.selectedOption;
-    this.notifica.show(message, "OK");
-    console.log('Search for:', this.searchText, 'in', this.selectedOption);
-    this.selectedOption= 'tutto';
-    this. searchText = '';
   }
 }

@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { catchError, map, Observable, of, throwError } from 'rxjs';
 import { AuthService } from './auth.service';
 import { JsonPipe } from '@angular/common';
+import { Email } from '../models/email';
 
 @Injectable({
   providedIn: 'root'
@@ -57,7 +58,7 @@ export class EmailService {
     );
   }
 
-  getEmails(): Observable<any[]> {
+  getUserEmailsOrSearchBy(option: number, word?: string): Observable<Email[]> {
     const token = this.authService.getToken();
     if (!token) {
       return throwError(() => new Error('Token non trovato!'));
@@ -65,11 +66,16 @@ export class EmailService {
 
     const url = `${this.baseUrl}/user-emails`;
     const headers = new HttpHeaders().set('Authorization', token);
+    const body = { option, word };
 
-    return this.http.get<any[]>(url, { headers }).pipe(
+    return this.http.post<Email[]>(url, body, { headers }).pipe(
+      map((response: Email[]) => {
+        console.log('Email ricevute con successo!');
+        return response;
+      }), 
       catchError((error) => {
-        console.error('Errore nel recupero delle email: ',error);
-        return throwError(() => error);
+        console.error('Errore nel recupero delle email: ', error);
+        return throwError(() => new Error(`Errore nel recupero delle email: ${error.status} ${error.statusText}`));
       })
     );
   }

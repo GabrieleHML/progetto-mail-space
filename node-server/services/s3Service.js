@@ -7,20 +7,21 @@ exports.uploadEmail = async (userEmail, body) => {
     Key: s3Key,
     Body: body,
   };
-  console.log(params);
+  console.log(params); // TODO log
   const data = await s3.upload(params).promise();
   return data.Key;
 };
 
-exports.getUserEmails = async (userEmail) => {
-  const params = {
-    Bucket: bucketName,
-    Prefix: `${userEmail}/`,
-  };
-  const data = await s3.listObjectsV2(params).promise();
-  return data.Contents.map(item => ({
-    key: item.Key,
-    size: item.Size,
-    lastModified: item.LastModified,
-  }));
+exports.getEmailContent = async (s3Key) => {
+  try {
+    const params = {
+      Bucket: bucketName,
+      Key: s3Key,
+    };
+    const data = await s3.getObject(params).promise();
+    return data.Body.toString();
+  } catch (error) {
+    console.error(`Errore nella ricerca dell'email per chiave S3: ${s3Key};`, error);
+    throw error;
+  }
 };

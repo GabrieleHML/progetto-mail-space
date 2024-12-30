@@ -16,10 +16,10 @@
         <mat-form-field appearance="fill" class="select-field" [subscriptSizing]="'dynamic'">
             <mat-label>Filtra per</mat-label>
             <mat-select [(value)]="selectedOption">
-                <mat-option value="tutto">Tutto</mat-option>
-                <mat-option value="mittente">Mittente</mat-option>
-                <mat-option value="argomento">Argomento</mat-option>
-                <mat-option value="parole_chiave">Parole chiave</mat-option>
+                <mat-option value="all">Tutto</mat-option>
+                <mat-option value="sender">Mittente</mat-option>
+                <mat-option value="topic">Argomento</mat-option>
+                <mat-option value="used_terms">Parole chiave</mat-option>
             </mat-select>
         </mat-form-field>
 
@@ -28,7 +28,7 @@
             <input matInput [(ngModel)]="searchText" placeholder="Inserisci testo" required>
         </mat-form-field>
 
-        <button mat-fab color="primary" class="search-button" (click)="onSearch()">
+        <button mat-fab color="primary" class="search-button" (click)="getUserEmailsOrSearchBy(getSearchOptionValue(selectedOption), searchText)">
             <mat-icon>search</mat-icon>
         </button>
     </div>
@@ -55,9 +55,9 @@
 <div *ngFor="let email of emails">
     <mat-expansion-panel>
         <mat-expansion-panel-header>
-            <mat-panel-title>{{ email.mittente }}</mat-panel-title>
-            <mat-panel-description>{{ email.oggetto }}</mat-panel-description>
+            <mat-panel-title>{{ email.sender }}</mat-panel-title>
+            <mat-panel-description>{{ email.subject }}</mat-panel-description>
         </mat-expansion-panel-header>
-        <pre>{{ email.corpo }}</pre>
+        <pre>{{ email.body }}</pre>
     </mat-expansion-panel>
 </div>
