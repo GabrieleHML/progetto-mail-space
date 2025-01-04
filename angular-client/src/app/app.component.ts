@@ -41,8 +41,7 @@ export class AppComponent implements OnInit{
   username!: string | null;
 
   constructor(
-    public dialog: MatDialog, 
-    private snackBar: MatSnackBar, 
+    public dialog: MatDialog,
     private authService: AuthService,
     private router: Router,
     private notifica: NotificationService
@@ -53,7 +52,7 @@ export class AppComponent implements OnInit{
     this.currentUser$ = this.authService.currentUser$;
     this.authService.currentUser$.subscribe(user => {
       this.username = user;
-      console.log('Valore di currentUser$: ', this.username); //FIXME log username
+      console.log('Valore di currentUser$: ', this.username); //TODO log username
     });
     this.isLoggedIn$.subscribe(isLoggedIn => {
       console.log('Valore di isLoggedIn$:', isLoggedIn);
@@ -78,23 +77,13 @@ export class AppComponent implements OnInit{
     const token = this.authService.getToken();
     if (token) {
       this.authService.logout().subscribe({
-        next: () => console.log('Logout effettuato'),
+        next: () => {
+          console.log('Logout effettuato');
+          this.notifica.show("Ciao, alla prossima!", "");
+          this.router.navigate(['/']);
+        },
         error: err => console.error('Errore durante il logout', err)
       });
     }
   }
-
-  codice(): void {
-    /*
-    this.dialog.open(ConfirmationCodeComponent, {
-      width: '400px',
-      height: '400px'
-    });
-    */
-    //this.notifica.show('Operazione riuscita', 'Grande');
-    this.router.navigate(['/mails'], {
-      state: { message: 'SEI STATO REINDIRIZZATO!', action: 'GRANDE' }
-    });
-  }
-  
 }

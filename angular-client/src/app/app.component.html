@@ -16,7 +16,6 @@
       <button mat-menu-item *ngIf="!(isLoggedIn$ | async)" (click)="openLoginDialog()">Accedi</button>
       <button mat-menu-item *ngIf="!(isLoggedIn$ | async)" (click)="openRegisterDialog()">Registrati</button>
       <button mat-menu-item *ngIf="(isLoggedIn$ | async)" (click)="logout()">Esci</button>
-      <button mat-menu-item (click)="codice()">Codice</button>
     </mat-menu>
   </div>
 </mat-toolbar>

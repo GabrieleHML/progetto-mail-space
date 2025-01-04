@@ -14,6 +14,7 @@ import { SnackBarComponent } from '../snack-bar/snack-bar.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LoginComponent } from '../login/login.component';
+import { NotificationService } from '../services/notification.service';
 
 @Component({
   selector: 'app-register',
@@ -44,7 +45,7 @@ export class RegisterComponent {
   constructor(
     public dialog: MatDialog, 
     private authService: AuthService, 
-    private snackBar: MatSnackBar,
+    private notifica: NotificationService,
     @Inject(MAT_DIALOG_DATA) public data: any, 
     private dialogRef: MatDialogRef<RegisterComponent>
   ) { }
@@ -62,14 +63,10 @@ export class RegisterComponent {
     let password = this.form.value.password;
     let confirm = this.form.value.confirm;
 
-    console.log('email: ',email,' username: ',username,' password1: ',password,' password2: ',confirm); // FIXME debug log
+    console.log('email: ',email,' username: ',username,' password1: ',password,' password2: ',confirm); // TODO debug log
 
     if (password !== confirm) {
-      this.snackBar.open('Le password non corrispondono. Riprova.', 'Chiudi', {
-        duration: 3000, 
-        verticalPosition: 'top',
-        horizontalPosition: 'center'
-      });
+      this.notifica.show('Le password non corrispondono. Riprova.', 'Chiudi');
       return;
     }
 
@@ -77,18 +74,10 @@ export class RegisterComponent {
       next: (response) => {
         console.log('Registrazione avvenuta con successo:', response);
         this.dialogRef.close();
-        this.snackBar.open('Registrazione avvenuta con successo!', 'Chiudi', {
-          duration: 3000, 
-          verticalPosition: 'top',
-          horizontalPosition: 'center'
-        });
+        this.notifica.show('Registrazione avvenuta con successo!', 'Chiudi');
         this.openConfirmationDialog();
       }, error: (error) => {
-        this.snackBar.open('Errore durante la registrazione. Riprova', 'Chiudi', {
-          duration: 3000, 
-          verticalPosition: 'top',
-          horizontalPosition: 'center'
-        });
+        this.notifica.show('Errore durante la registrazione. Riprova', 'Chiudi');
         console.error('Errore durante la registrazione:', error);
       }
     });

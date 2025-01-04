@@ -79,24 +79,4 @@ export class EmailService {
       })
     );
   }
-
-  searchEmailsBySender(sender: string): Observable<any[]> {
-    const url = `${this.baseUrl}/search-by-sender/${sender}`;
-    return this.http.get<any>(url);
-  }
-
-  searchEmailsBySubject(subject: string): Observable<any[]> {
-    const url = `${this.baseUrl}/search-by-subject/${subject}`;
-    return this.http.get<any>(url);
-  }
-
-  searchEmailsByKeyword(keyword: string): Observable<any[]> {
-    const url = `${this.baseUrl}/search-by-keyword/${keyword}`;
-    return this.http.get<any>(url);
-  }
-
-  searchEmailsByText(text: string): Observable<any[]> {
-    const url = `${this.baseUrl}/search-by-text/${text}`;
-    return this.http.get<any>(url);
-  }
 }

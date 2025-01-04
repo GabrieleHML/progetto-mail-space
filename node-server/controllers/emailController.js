@@ -22,7 +22,6 @@ const processEmail = async (sender, subject, body, userEmail, res) => {
   try {
     // 2. Analizza il testo con Amazon Comprehend
     const analysisResult = await comprehendService.analyzeText(body);
-    // const analysisResult = await comprehendService.analyzeEmail(body);
     usedTerms = analysisResult.usedTerms;
     topic = analysisResult.topic;
     console.log("Argomento: ", topic);
@@ -66,6 +65,29 @@ exports.uploadEmail = async (req, res) => {
   }
 };
 
+// Estrae l'email da una stringa del tipo '[ "Nome Cognome" <esempio.esempio123@gmail.com> ]' ottenuta dal file .eml
+/*
+const extractEmail = (inputString) => {
+  const regex = /<([^>]+)>/;
+  const match = inputString.match(regex);
+  return match ? match[1].trim() : null;
+}
+*/
+const cleanSenderEmail = (inputString) => {
+  const regex1 = /<([^>]+)>/;
+  const regex2 = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/;
+
+  // Primo tentativo con regex1
+  const match1 = inputString.match(regex1);
+  if (match1) {
+    return match1[1].trim(); // Restituisce il contenuto tra <>
+  }
+
+  // Se regex1 non ha successo, tenta con regex2
+  const match2 = inputString.match(regex2);
+  return match2 ? match2[0].trim() : null; // Restituisce l'email trovata o null se nessuna email è presente
+};
+
 // Metodo di upload che riceve il file da cui estrae le informazioni utili
 exports.uploadEmailFile = async (req, res) => {
   try {
@@ -87,8 +109,8 @@ exports.uploadEmailFile = async (req, res) => {
       const testo = parsedEmail.text || 'Testo non presente';
 
       // Invia le informazioni estratte a processEmail
-      await processEmail(mittente, oggetto, testo, userEmail, res);
-
+      await processEmail(cleanSenderEmail(mittente), oggetto, testo, userEmail, res);
+      
       // Cancella il file temporaneo
       fs.unlinkSync(filePath);
     })
@@ -106,8 +128,6 @@ exports.getUserEmailsOrSearchBy = async (req, res) => {
     const userEmail = req.user.email;
     const option = req.body.option;
     const word = req.body.word || ''; // Parola da cercare, nulla se l'opzione è 0
-
-    console.log("email: ",userEmail," option: ", option, " word: ",word); // TODO debug log
 
     // Lista di email da inviare al Client
     const emails_CLIENT = [];
@@ -134,8 +154,6 @@ exports.getUserEmailsOrSearchBy = async (req, res) => {
       default: 
         res.status(400).json({ message: 'Opzione non valida' });
     }
-
-    console.log("emails_RDS dopo lo switch: ", emails_RDS);  // TODO debug log
 
     // Per ogni email, ottengo il body da S3 e lo aggiungo alla lista da inviare al Client
     for (const email of emails_RDS) {

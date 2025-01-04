@@ -13,7 +13,7 @@
       </div>
       
     <div class="search-bar">
-        <mat-form-field appearance="fill" class="select-field" [subscriptSizing]="'dynamic'">
+        <mat-form-field appearance="fill" class="select-field" [subscriptSizing]="'dynamic'" style="border-radius: 12px; overflow: hidden;">
             <mat-label>Filtra per</mat-label>
             <mat-select [(value)]="selectedOption">
                 <mat-option value="all">Tutto</mat-option>
@@ -23,7 +23,7 @@
             </mat-select>
         </mat-form-field>
 
-        <mat-form-field class="text-field" [subscriptSizing]="'dynamic'">
+        <mat-form-field class="text-field" [subscriptSizing]="'dynamic'" style="border-radius: 12px; overflow: hidden;">
             <mat-label>Cerca</mat-label>
             <input matInput [(ngModel)]="searchText" placeholder="Inserisci testo" required>
         </mat-form-field>
@@ -34,30 +34,28 @@
     </div>
 </div>
 <div class="div-sotto">
-    <p>Test</p>
-    <mat-expansion-panel>
-        <mat-expansion-panel-header>
-            <mat-panel-title> <p>mario.rossi&#64;example.com</p> </mat-panel-title>
-            <mat-panel-description> <p>Proposta di collaborazione</p> </mat-panel-description>
-        </mat-expansion-panel-header>
-        <pre>
-            Caro Signor Bianchi,
-            Mi chiamo Mario Rossi e rappresento la società Innovatech. Siamo interessati a discutere una possibile collaborazione con la vostra azienda per un progetto innovativo nel settore delle tecnologie verdi. Crediamo che la vostra esperienza e competenza possano essere di grande valore per il successo del progetto.
-            Saremmo lieti di organizzare un incontro per discutere i dettagli e valutare le opportunità di collaborazione. Potrebbe gentilmente indicarci la sua disponibilità per la prossima settimana?
-            In attesa di un suo gentile riscontro, le porgo i miei più cordiali saluti.
-            Cordiali saluti,
-            Mario Rossi
-            Innovatech
-        </pre>
-    </mat-expansion-panel>
+    <p>Elenco delle mail</p>
+    <mat-spinner *ngIf="isLoading" diameter="50"></mat-spinner>
+    <div *ngIf="!isLoading">
+        <div *ngFor="let email of paginatedEmails" style="padding-top: 20px;">
+            <mat-expansion-panel>
+                <mat-expansion-panel-header>
+                    <mat-panel-title>{{ email.sender }}</mat-panel-title>
+                    <mat-panel-description>{{ email.subject }}</mat-panel-description>
+                </mat-expansion-panel-header>
+                <pre style="white-space: pre-wrap;">{{ email.body }}</pre>
+            </mat-expansion-panel>
+        </div>
+        <div style="padding-top: 40px;">
+            <mat-paginator style=" border-radius: 12px; overflow: hidden;"
+                    [length]="emails.length"
+                    [pageSize]="pageSize"
+                    [pageSizeOptions]="[1, 5, 10, 25]"
+                    (page)="onPageChange($event)"
+                    aria-label="Select page">
+            </mat-paginator>
+        </div>
+    </div>
 </div>
-<p>Email effettive dell'utente</p>
-<div *ngFor="let email of emails">
-    <mat-expansion-panel>
-        <mat-expansion-panel-header>
-            <mat-panel-title>{{ email.sender }}</mat-panel-title>
-            <mat-panel-description>{{ email.subject }}</mat-panel-description>
-        </mat-expansion-panel-header>
-        <pre>{{ email.body }}</pre>
-    </mat-expansion-panel>
-</div>
+
+

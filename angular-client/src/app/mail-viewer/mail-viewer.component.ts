@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, FormGroupDirective, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, ViewChild } from '@angular/core';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -12,12 +12,14 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatSelectModule } from '@angular/material/select';
 import { MasSplitButtonModule } from '@material-spirit/ngx-split-button';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { MatListModule } from '@angular/material/list';
+import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { NotificationService } from '../services/notification.service';
 import { EmailService } from '../services/email.service';
 import { CommonModule, NgFor } from '@angular/common';
 import { Email } from '../models/email';
-import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-mail-viewer',
@@ -37,6 +39,9 @@ import { AuthService } from '../services/auth.service';
     MatSelectModule,
     MatFormFieldModule,
     MasSplitButtonModule,
+    MatListModule,
+    MatPaginatorModule,
+    MatProgressSpinnerModule,
     FormsModule,
     ReactiveFormsModule,
     RouterLink,
@@ -54,15 +59,21 @@ export class MailViewerComponent {
     cerca: new FormControl('', Validators.required)
   });
   
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+
+  paginatedEmails: Email[] = [];
+  pageSize: number = 5;
+  pageIndex: number = 0;
+  isLoading: boolean = false;
+
   constructor(
     private notifica: NotificationService,
     private emailService: EmailService,
-    private authService: AuthService,
-    private fb: FormBuilder
   ) { }
 
 
   ngOnInit(): void {
+    this.isLoading = true;
     this.getUserEmailsOrSearchBy(0);
     const state = history.state;
     if (state && state['message']) {
@@ -93,6 +104,9 @@ export class MailViewerComponent {
         console.error('Il file selezionato non ha l\'estensione .eml');
         this.notifica.show("Estensione del file non valida","OK");
       }
+    } else {
+      console.error('Nessun file selezionato');
+      this.notifica.show("Nessun file selezionato", "OK");
     }
   }
 
@@ -113,13 +127,33 @@ export class MailViewerComponent {
    * 4 searchByUsedTerms
   */
   getUserEmailsOrSearchBy(option: number, word?: string): void {
+    this.pageIndex = 0; // Reset paginator
+    this.isLoading = true;
     this.emailService.getUserEmailsOrSearchBy(option, word).subscribe({
       next: (data) => {
         this.emails = data;
+        this.updatePaginatedEmails();
+        if (this.paginator) {
+          this.paginator.length = this.emails.length;
+        }
+        this.isLoading = false;
       },
       error: (err) => {
         console.error('Errore durante il recupero delle email:', err);
+        this.isLoading = false;
       }
     });
+  }
+
+  updatePaginatedEmails(): void {
+    const startIndex = this.pageIndex * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    this.paginatedEmails = this.emails.slice(startIndex, endIndex);
+  }
+
+  onPageChange(event: PageEvent): void {
+    this.pageSize = event.pageSize;
+    this.pageIndex = event.pageIndex;
+    this.updatePaginatedEmails();
   }
 }
