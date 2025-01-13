@@ -1,4 +1,5 @@
 const rdsService = require('../services/rdsService');
+const s3Service = require('../services/s3Service');
 
 exports.addFolder = async (req, res) => {
   try {
@@ -59,13 +60,26 @@ exports.addEmailsToFolder = async (req, res) => {
 exports.getEmailsFromFolder = async (req, res) => {
   try {
     const folderId = req.body.folderId;
+    const emailsClient = [];
 
     if (!folderId) {
       return res.status(400).json({ message: 'Folder ID is required' });
     }
 
     const emails = await rdsService.getEmailsFromFolder(folderId);
-    res.json(emails);
+
+    for (const email of emails) {
+      const body = await s3Service.getEmailContent(email.s3_key);
+      const emailClient = {
+        sender: email.sender,
+        subject: email.subject,
+        body: body,
+        s3_key: email.s3_key
+      };
+      emailsClient.push(emailClient);
+    }
+
+    res.json(emailsClient);
   } catch (error) {
     res.status(500).json({ message: 'Error retrieving emails from folder', error });
   }

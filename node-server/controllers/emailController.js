@@ -128,7 +128,7 @@ exports.getUserEmailsOrSearchBy = async (req, res) => {
     const word = req.body.word || ''; // Parola da cercare, nulla se l'opzione è 0
 
     // Lista di email da inviare al Client
-    const emails_CLIENT = [];
+    const emailsClient = [];
     
     // Lista di email da RDS
     let emails_RDS = [];
@@ -156,14 +156,14 @@ exports.getUserEmailsOrSearchBy = async (req, res) => {
     // Per ogni email, ottengo il body da S3 e lo aggiungo alla lista da inviare al Client
     for (const email of emails_RDS) {
       const body = await s3Service.getEmailContent(email.s3_key);
-      emails_CLIENT.push({
+      emailsClient.push({
         sender: email.sender,
         subject: email.subject,
         body: body,
         s3_key: email.s3_key
       });
     }
-    res.json(emails_CLIENT);
+    res.json(emailsClient);
   } catch (error) {
     res.status(500).json({ message: 'Errore nella ricerca delle mail', error });
   }

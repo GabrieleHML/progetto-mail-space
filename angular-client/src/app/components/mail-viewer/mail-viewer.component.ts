@@ -122,6 +122,7 @@ export class MailViewerComponent {
         next: (data) => {
           console.log('File caricato con successo!', data);
           this.notifica.show("File .eml caricato con successo!", "OK");
+          this.getUserEmailsOrSearchBy(0);
         },
         error: (err) => {
           console.error('Errore caricamento file:', err);
@@ -227,6 +228,8 @@ export class MailViewerComponent {
     this.folderService.addEmailsToFolder(s3Keys, folderId).subscribe({
       next: () => {
         this.notifica.show("Email aggiunte alla cartella con successo!", "OK");
+        this.selectedEmails.clear();
+        this.allSelected = false;
       },
       error: (err) => {
         console.error('Errore durante l\'aggiunta delle email alla cartella:', err);
@@ -236,11 +239,14 @@ export class MailViewerComponent {
   }
 
   getEmailsFromFolder(folder: Folder): void {
+    this.selectedEmails.clear();
+    this.allSelected = false;
     this.selectedFolder = folder;
     this.isLoadingEmails = true;
     this.folderService.getEmailsFromFolder(folder.id).subscribe({
       next: (data) => {
         this.emails = data;
+        console.log('Emails from folder:', this.emails); // TODO debug log
         this.updatePaginatedEmails();
         if (this.paginator) {
           this.paginator.length = this.emails.length;
