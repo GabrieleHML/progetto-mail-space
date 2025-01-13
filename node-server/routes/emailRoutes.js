@@ -8,5 +8,5 @@ const upload = multer({ dest: 'uploads/' });  // cartella temporanea per i file 
 router.post('/upload', authenticateJWT, emailController.uploadEmail);
 router.post('/uploadFile', authenticateJWT, upload.single('emailFile'), emailController.uploadEmailFile);
 router.post('/user-emails', authenticateJWT, emailController.getUserEmailsOrSearchBy);
-
-module.exports = router;
+router.post('/delete', authenticateJWT, emailController.deleteEmails);
+module.exports = router; 

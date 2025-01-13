@@ -2,7 +2,6 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, map, Observable, of, throwError } from 'rxjs';
 import { AuthService } from './auth.service';
-import { JsonPipe } from '@angular/common';
 import { Email } from '../models/email';
 
 @Injectable({
@@ -54,6 +53,27 @@ export class EmailService {
         return response;
       }), catchError((error: any) => {
         return throwError(() => new Error(`Errore durante l'upload del file: ${error.status} ${error.statusText}`));
+      })
+    );
+  }
+
+  deleteEmails(s3Keys: string[]): Observable<any> {
+    const token = this.authService.getToken();
+    if (!token) {
+      return throwError(() => new Error('Token non trovato!'));
+    }
+
+    const url = `${this.baseUrl}/delete`;
+    const headers = new HttpHeaders().set('Authorization', token);
+    const body = { s3Keys };
+
+    return this.http.post(url, body, { headers }).pipe(
+      map((response: any) => {
+        console.log('Email cancellate con successo!');
+        return response;
+      }),
+      catchError((error: any) => {
+        return throwError(() => new Error(`Errore durante la cancellazione: ${error.status} ${error.statusText}`));
       })
     );
   }

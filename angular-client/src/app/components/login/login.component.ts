@@ -6,11 +6,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { AuthService } from '../services/auth.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { AuthService } from '../../services/auth.service';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { NotificationService } from '../services/notification.service';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-login',
@@ -36,23 +35,28 @@ export class LoginComponent {
   });
 
   constructor(
-    private authService: AuthService, 
-    private snackBar: MatSnackBar,
+    private authService: AuthService,
     @Inject(MAT_DIALOG_DATA) public data: any, 
     private dialogRef: MatDialogRef<LoginComponent>,
     private notifica: NotificationService
   ) {}
 
   onLogin() {
-    let username = this.form.value.username;
-    let password = this.form.value.password;
+    if (this.form.invalid) {
+      this.notifica.show('Compila tutti i campi richiesti', 'Chiudi');
+      return;
+    }
+  
+    const { username, password } = this.form.value;
   
     this.authService.signIn(username, password).subscribe({
-      next: (response) => {
+      next: () => {
         this.dialogRef.close();
-      }, error: (error) => {
-        //TODO this.notifica.show('Errore durante l\'accesso. Riprova', 'Chiudi');
+      },
+      error: () => {
+        this.notifica.show('Errore durante l\'accesso. Riprova', 'Chiudi');
+        this.form.reset();
       }
-    }); //subscribe
-  } //onLogin
+    });
+  } 
 }

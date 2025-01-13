@@ -7,13 +7,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { LoginComponent } from './login/login.component';
-import { RegisterComponent } from './register/register.component';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { LoginComponent } from './components/login/login.component';
+import { RegisterComponent } from './components/register/register.component';
 import { AuthService } from './services/auth.service';
 import { CommonModule } from '@angular/common';
-import { Observable, of } from 'rxjs';
-import { ConfirmationCodeComponent } from './confirmation-code/confirmation-code.component';
+import { Observable } from 'rxjs';
 import { NotificationService } from './services/notification.service';
 
 @Component({
@@ -43,7 +41,7 @@ export class AppComponent implements OnInit{
   constructor(
     public dialog: MatDialog,
     private authService: AuthService,
-    private router: Router,
+    public router: Router,
     private notifica: NotificationService
   ) {}
 
@@ -52,17 +50,19 @@ export class AppComponent implements OnInit{
     this.currentUser$ = this.authService.currentUser$;
     this.authService.currentUser$.subscribe(user => {
       this.username = user;
-      console.log('Valore di currentUser$: ', this.username); //TODO log username
-    });
-    this.isLoggedIn$.subscribe(isLoggedIn => {
-      console.log('Valore di isLoggedIn$:', isLoggedIn);
     });
   }
 
   openLoginDialog(): void {
-    this.dialog.open(LoginComponent, {
+    const dialogRef = this.dialog.open(LoginComponent, {
       width: '400px',
       height: '400px'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (this.username) {
+        this.notifica.show(`Benvenuto ${this.username}!`, '');
+      }
     });
   }
   

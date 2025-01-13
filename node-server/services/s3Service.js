@@ -7,7 +7,6 @@ exports.uploadEmail = async (userEmail, body) => {
     Key: s3Key,
     Body: body,
   };
-  console.log(params); // TODO log
   const data = await s3.upload(params).promise();
   return data.Key;
 };

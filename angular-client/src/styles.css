@@ -1,10 +1,16 @@
 /* You can add global styles to this file, and also import other style files */
 
 html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; display: flex; flex-direction: column; }
 
 .main-container {
   margin-left: 10%;
+  margin-right: 10%;
+  flex: 1;
+}
+
+.mail-viewer-container {
+  margin-left: 0;
   margin-right: 10%;
 }
 
@@ -13,29 +19,12 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 }
 
 .div-sotto {
-  margin-top: 120px;
+  margin-top: 100px;
 }
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-/*
-:host {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-    width: 100%;
-  }
-  
-  mat-dialog-content {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-    width: 100%;
-  }
-  */
 
 .max-w-350 {
   max-width: 350px;
@@ -71,4 +60,32 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   display: flex;
   align-items: center;
   justify-content: center;
-} 
+}
+
+.left-space {
+  padding-left: 10px;
+}
+
+.remove-from-folder-button {
+  margin-left: auto;
+}
+
+.presentation-container {
+  margin-top: 20px;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.presentation-container h2 {
+  color: #333;
+}
+
+.presentation-container h3 {
+  color: #555;
+}
+
+.presentation-container p, .presentation-container ul {
+  color: #666;
+}

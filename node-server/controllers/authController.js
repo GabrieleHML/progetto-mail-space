@@ -64,7 +64,6 @@ exports.signin = async (req, res) => {
       },
       jwt_secret_key, { expiresIn: '24h' }
     );
-    // console.log('Token Object: ', token); // TODO debug log
     res.json({ token });
     console.log('Accesso avvenuto con successo!');
   } catch (error) {

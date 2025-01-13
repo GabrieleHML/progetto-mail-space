@@ -1,26 +1,57 @@
-<mat-toolbar class="bg-blue-500 text-white">
-  <div class="flex items-center">
-    <button mat-button class="text-white" [routerLink]="['/']">Home</button>
-    <button mat-button class="text-white" *ngIf="isLoggedIn$ | async" [routerLink]="['/mails']">Email</button>
-  </div>
-  
-  <span class="flex-1"></span>
-  
-  <div class="flex items-center">
-    <span *ngIf="currentUser$ | async as username" class="mr-2">{{ username }}</span>
-    <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="User profile and actions">
-      <mat-icon>account_circle</mat-icon>
-      <mat-icon>arrow_drop_down</mat-icon>
-    </button>
-    <mat-menu #menu="matMenu">
-      <button mat-menu-item *ngIf="!(isLoggedIn$ | async)" (click)="openLoginDialog()">Accedi</button>
-      <button mat-menu-item *ngIf="!(isLoggedIn$ | async)" (click)="openRegisterDialog()">Registrati</button>
-      <button mat-menu-item *ngIf="(isLoggedIn$ | async)" (click)="logout()">Esci</button>
-    </mat-menu>
-  </div>
-</mat-toolbar>
+<div class="flex flex-col min-h-screen">
+  <mat-toolbar class="bg-blue-500 text-white">
+    <div class="flex items-center ml-2.5">
+      <button mat-button class="text-white" style="font-size: large;" [routerLink]="['/']">Home</button>
+      <button mat-button class="text-white" style="font-size: large;" *ngIf="isLoggedIn$ | async" [routerLink]="['/mails']">Email</button>
+    </div>
+    
+    <span class="flex-1"></span>
+    
+    <div class="flex items-center mr-5">
+      <span *ngIf="currentUser$ | async as username" class="mr-2">{{ username }}</span>
+      <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="User profile and actions">
+        <mat-icon>account_circle</mat-icon>
+        <mat-icon>arrow_drop_down</mat-icon>
+      </button>
+      <mat-menu #menu="matMenu">
+        <button mat-menu-item *ngIf="!(isLoggedIn$ | async)" (click)="openLoginDialog()">Accedi</button>
+        <button mat-menu-item *ngIf="!(isLoggedIn$ | async)" (click)="openRegisterDialog()">Registrati</button>
+        <button mat-menu-item *ngIf="(isLoggedIn$ | async)" (click)="logout()">Esci</button>
+      </mat-menu>
+    </div>
+  </mat-toolbar>
 
-<div class="main-container">
-  <router-outlet></router-outlet>
+  <div class="main-container flex-grow" [ngClass]="{'mail-viewer-container': router.url.includes('/mails')}">
+    <router-outlet></router-outlet>
+    
+    <div *ngIf="router.url === '/'" class="presentation-container">
+      <h2 class="text-3xl font-bold mb-4">Benvenuto nella nostra applicazione di analisi email</h2>
+      <p class="mb-6">Questa applicazione ti permette di analizzare un insieme di email caricate per identificare i termini più usati e gli argomenti trattati.</p>
+      
+      <h3 class="text-2xl font-semibold mb-2">Caricamento delle email</h3>
+      <p class="mb-4">Puoi caricare le email manualmente inserendo mittente, oggetto e testo oppure caricando un file con estensione .eml.</p>
+      
+      <h3 class="text-2xl font-semibold mb-2">Filtri disponibili</h3>
+      <p class="mb-4">Puoi applicare i seguenti filtri per analizzare le email:</p>
+      <ul class="list-disc list-inside mb-6">
+        <li>Mittente</li>
+        <li>Argomento</li>
+        <li>Parole chiave</li>
+        <li>O tutti e tre i filtri contemporaneamente</li>
+      </ul>
+      
+      <h3 class="text-2xl font-semibold mb-2">Raccolta in cartelle</h3>
+      <p class="mb-4">L'applicazione permette di creare cartelle personalizzate e inserire le email selezionate in queste cartelle per una migliore organizzazione.</p>
+    </div>
+  </div>
+
+  <footer class="bg-gray-800 text-white py-4 mt-4">
+    <div class="container mx-auto text-center">
+      <p>&copy; 2023 Your Company. All rights reserved.</p>
+      <p>
+        <a href="/privacy" class="text-blue-400">Privacy Policy</a> | 
+        <a href="/terms" class="text-blue-400">Terms of Service</a>
+      </p>
+    </div>
+  </footer>
 </div>
-

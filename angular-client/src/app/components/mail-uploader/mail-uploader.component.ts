@@ -9,8 +9,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { EmailService } from '../services/email.service';
-import { NotificationService } from '../services/notification.service';
+import { EmailService } from '../../services/email.service';
+import { NotificationService } from '../../services/notification.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -46,8 +46,6 @@ export class MailUploaderComponent {
   
   uploadMail(): void {
     const { mittente, oggetto, testo } = this.form.value;
-
-    console.log(this.form.value); // TODO log
 
     this.emailService.uploadEmail(mittente, oggetto, testo).subscribe({
       next: (response) => {

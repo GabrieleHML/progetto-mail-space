@@ -42,7 +42,6 @@ export class AuthService {
   signIn(username: string, password: string): Observable<string> {
     const url = `${this.baseUrl}/signin`;
     const body = { username, password };
-    console.log('Prova di accesso: ', url, body);
     return this.http.post<{ token: string }>(url, body)
       .pipe(
         map(response => {
@@ -84,7 +83,6 @@ export class AuthService {
 
     return this.http.post(url, {}, { headers }).pipe(
       map((response: any) => {
-        // Rendere osservabili lo stato di autenticazione e lo username
         this.isLoggedInSubject.next(false);
         this.currentUserSubject.next('');
         localStorage.removeItem('authToken');
@@ -93,7 +91,6 @@ export class AuthService {
         return response;
       }), catchError((error: any) => {
         console.error('Errore logout: ', error);
-        // TODO 'soluzione' temporanea, implementare isTokenValid()
         this.isLoggedInSubject.next(false);
         this.currentUserSubject.next('');
         localStorage.removeItem('authToken');

@@ -1,5 +1,5 @@
-import {  Router } from '@angular/router';
-import { Component, Inject, inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { Component, Inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -7,10 +7,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { AuthService } from '../services/auth.service';
+import { AuthService } from '../../services/auth.service';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { NotificationService } from '../services/notification.service';
+import { NotificationService } from '../../services/notification.service';
+import { CommonModule } from '@angular/common';
+import { NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-confirmation-code',
@@ -24,7 +26,9 @@ import { NotificationService } from '../services/notification.service';
     MatFormFieldModule,
     MatInputModule,
     FormsModule, 
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    CommonModule,
+    NgIf
   ],
   templateUrl: './confirmation-code.component.html'
 })
@@ -45,19 +49,22 @@ export class ConfirmationCodeComponent {
 
   // CONFERMA PER LA REGISTRAZIONE COMPLETA 
   onConfirmSignUp() {
-    let username = this.form.value.username;
-    let confirmationCode = this.form.value.confirmationCode;
+    if (this.form.invalid) {
+      this.notifica.show('Compila correttamente il modulo.', 'Chiudi');
+      return;
+    }
 
-    console.log('username: ',username ,' code: ',confirmationCode); // TODO debug log
+    const { username, confirmationCode } = this.form.value;
 
     this.authService.confirmSignUp(username, confirmationCode).subscribe({
       next: (response) => {
         console.log('Conferma avvenuta con successo: ', response);
         this.dialogRef.close();
-        this.router.navigate(['/mails'], {
+        this.router.navigate(['/'], {
           state: { message: 'Registrazione confermata con successo!', action: 'OK' }
         });
-      }, error: (error) => {
+      },
+      error: (error) => {
         console.error('Errore durante la conferma: ', error);
         this.notifica.show('Errore durante la conferma. Verifica il codice e riprova', 'Chiudi');
       }

@@ -1,19 +1,15 @@
 const s3Service = require('../services/s3Service');
 const comprehendService = require('../services/comprehendService');
 const rdsService = require('../services/rdsService');
-const EmlParser = require('eml-parser');
 const fs = require('fs');
 const emlParser = require('eml-parser');
 
 const processEmail = async (sender, subject, body, userEmail, res) => {
   let s3Key, usedTerms, topic;
   
-  console.log("Body che arriva a processEmail: ",body);
-
   try {
     // 1. Carica il contenuto su S3
     s3Key = await s3Service.uploadEmail(userEmail, body);
-    console.log("OK: Caricamento S3");
   } catch (error) {
     console.error('Errore durante il caricamento su S3');
     return res.status(500).json({ message: 'Errore nel caricamento su S3', error });
@@ -24,9 +20,6 @@ const processEmail = async (sender, subject, body, userEmail, res) => {
     const analysisResult = await comprehendService.analyzeText(body);
     usedTerms = analysisResult.usedTerms;
     topic = analysisResult.topic;
-    console.log("Argomento: ", topic);
-    console.log("Termini usati: ", usedTerms);
-    console.log("OK: Analisi Comprehend");
   } catch (error) {
     console.error('Errore durante l\'analisi del testo con Amazon Comprehend');
     return res.status(500).json({ message: 'Errore nell\'analisi del testo', error });
@@ -43,7 +36,6 @@ const processEmail = async (sender, subject, body, userEmail, res) => {
       topic,
     };
     await rdsService.insertEmail(emailData);
-    console.log("OK: Caricamento RDS");
     res.json({ s3Key, usedTerms, topic });
   } catch (error) {
     console.error('Errore durante il salvataggio nel database RDS');
@@ -65,14 +57,20 @@ exports.uploadEmail = async (req, res) => {
   }
 };
 
-// Estrae l'email da una stringa del tipo '[ "Nome Cognome" <esempio.esempio123@gmail.com> ]' ottenuta dal file .eml
-/*
-const extractEmail = (inputString) => {
-  const regex = /<([^>]+)>/;
-  const match = inputString.match(regex);
-  return match ? match[1].trim() : null;
-}
-*/
+// Metodo di eliminazione che riceve le chiavi delle email da eliminare
+exports.deleteEmails = async (req, res) => {
+  try {
+    const s3Keys = req.body.s3Keys;
+    if (!Array.isArray(s3Keys) || s3Keys.length === 0) {
+      return res.status(400).json({ message: 'Array s3Keys invalido o vuoto' });
+    }
+    await rdsService.deleteEmails(s3Keys);
+    res.json({ message: 'Email eliminate con successo' });
+  } catch (error) {
+    res.status(500).json({ message: 'Errore nell eliminazione delle email', error });
+  }
+};
+
 const cleanSenderEmail = (inputString) => {
   const regex1 = /<([^>]+)>/;
   const regex2 = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/;
@@ -161,10 +159,10 @@ exports.getUserEmailsOrSearchBy = async (req, res) => {
       emails_CLIENT.push({
         sender: email.sender,
         subject: email.subject,
-        body: body
+        body: body,
+        s3_key: email.s3_key
       });
     }
-    console.log("le email: ", emails_CLIENT);
     res.json(emails_CLIENT);
   } catch (error) {
     res.status(500).json({ message: 'Errore nella ricerca delle mail', error });
