@@ -246,7 +246,6 @@ export class MailViewerComponent {
     this.folderService.getEmailsFromFolder(folder.id).subscribe({
       next: (data) => {
         this.emails = data;
-        console.log('Emails from folder:', this.emails); // TODO debug log
         this.updatePaginatedEmails();
         if (this.paginator) {
           this.paginator.length = this.emails.length;
