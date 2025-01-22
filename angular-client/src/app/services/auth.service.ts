@@ -7,7 +7,8 @@ import { BehaviorSubject, catchError, map, Observable, throwError } from 'rxjs';
 })
 export class AuthService {
   // private baseUrl = 'http://localhost:3000/auth';
-  private baseUrl = 'http://34.247.122.14:3000/auth';
+  // private baseUrl = 'http://34.247.122.14:3000/auth';
+  private baseUrl = 'https://emailproject.linkpc.net/auth';
   
   private isLoggedInSubject = new BehaviorSubject<boolean>(false);
   public isLoggedIn$: Observable<boolean> = this.isLoggedInSubject.asObservable();

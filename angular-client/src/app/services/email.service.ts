@@ -10,7 +10,8 @@ import { Email } from '../models/email';
 export class EmailService {
 
   // private baseUrl = 'http://localhost:3000/email';
-  private baseUrl = 'http://34.247.122.14:3000/email';
+  // private baseUrl = 'http://34.247.122.14:3000/email';
+  private baseUrl = 'https://emailproject.linkpc.net/email';
 
   constructor(private http: HttpClient, private authService: AuthService) { }
 
