@@ -12,9 +12,8 @@ exports.analyzeText = async (text) => {
 
   // Conteggio delle occorrenze delle parole che non siano 
   // segni di punteggiatura, pronomi, articoli o verbi ausiliari
-  const excludedTags = ['PUNCT', 'PRON', 'DET', 'AUX'];
+  const excludedTags = ['PUNCT', 'PRON', 'DET', 'AUX', 'ADP', 'CCONJ', 'SCONJ'];
   const syntaxClean = syntax.SyntaxTokens.filter(token => token.PartOfSpeech && !excludedTags.includes(token.PartOfSpeech.Tag));
-  console.log("Testo pulito: ",syntaxClean);
   syntaxClean.forEach(token => {
     const termine = token.Text.toLowerCase();
     termineCounts[termine] = (termineCounts[termine] || 0) + 1;
@@ -22,7 +21,7 @@ exports.analyzeText = async (text) => {
 
   // Ordinamento delle frasi chiave in base al punteggio di confidenza
   keyPhrases.KeyPhrases.sort((a, b) => b.Score - a.Score);
-
+  console.log("Frasi chiave: ",keyPhrases.KeyPhrases);
   // Ordinamento dei termini in base al conteggio delle occorrenze
   const sortedTerms = Object.entries(termineCounts).sort((a, b) => b[1] - a[1]);
   // Selezione dei primi 5 termini più usati
