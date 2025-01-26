@@ -55,7 +55,7 @@ import { AddFolderComponent } from '../add-folder/add-folder.component';
     FormsModule,
     ReactiveFormsModule,
     RouterLink,
-    RouterLinkActive,
+    //RouterLinkActive, disattivato per warning
     CommonModule,
     NgFor,
   ],
