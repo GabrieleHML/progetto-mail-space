@@ -29,7 +29,6 @@ exports.analyzeText = async (text) => {
   // Selezione dei primi 5 termini più usati
   const usedTerms = sortedTerms.slice(0, 5).map(entry => entry[0]);
   // Estrazione del primo termine chiave come argomento principale
-  const topic = keyPhrases.KeyPhrases[0] ? keyPhrases.KeyPhrases[0].Text : 'N/A';
-
+  const topic = keyPhrases.KeyPhrases.find(phrase => !excludedTags.includes(phrase.PartOfSpeech.Tag))?.Text || 'N/A';
   return { usedTerms, topic };
 };
