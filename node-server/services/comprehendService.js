@@ -22,11 +22,17 @@ exports.analyzeText = async (text) => {
   // Ordinamento delle frasi chiave in base al punteggio di confidenza
   keyPhrases.KeyPhrases.sort((a, b) => b.Score - a.Score);
   console.log("Frasi chiave: ",keyPhrases.KeyPhrases);
+
   // Ordinamento dei termini in base al conteggio delle occorrenze
   const sortedTerms = Object.entries(termineCounts).sort((a, b) => b[1] - a[1]);
   // Selezione dei primi 5 termini più usati
   const usedTerms = sortedTerms.slice(0, 5).map(entry => entry[0]);
-  // Estrazione del primo termine chiave come argomento principale
-  const topic = keyPhrases.KeyPhrases.find(phrase => phrase.PartOfSpeech && !excludedTags.includes(phrase.PartOfSpeech.Tag))?.Text || 'N/A';
-  return { usedTerms, topic, syntaxClean };
+
+  // Estrazione del termine chiave più lungo come argomento principale
+  const topic = keyPhrases.KeyPhrases.reduce((longest, phrase) => {
+    const length = phrase.EndOffset - phrase.BeginOffset;
+    return length > (longest.EndOffset - longest.BeginOffset) ? phrase : longest;
+  }, { Text: 'N/A', BeginOffset: 0, EndOffset: 0 }).Text;
+
+  return { usedTerms, topic};
 };
