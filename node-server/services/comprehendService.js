@@ -11,7 +11,8 @@ exports.analyzeText = async (text) => {
   const termineCounts = {};
 
   // Conteggio delle occorrenze delle parole che non siano 
-  // segni di punteggiatura, pronomi, articoli o verbi ausiliari
+  // segni di punteggiatura, pronomi, articoli, verbi ausiliari,
+  // preposizioni, congiunzioni coordinate e subordinate
   const excludedTags = ['PUNCT', 'PRON', 'DET', 'AUX', 'ADP', 'CCONJ', 'SCONJ'];
   const syntaxClean = syntax.SyntaxTokens.filter(token => token.PartOfSpeech && !excludedTags.includes(token.PartOfSpeech.Tag));
   syntaxClean.forEach(token => {
@@ -19,12 +20,9 @@ exports.analyzeText = async (text) => {
     termineCounts[termine] = (termineCounts[termine] || 0) + 1;
   });
 
-  // Ordinamento delle frasi chiave in base al punteggio di confidenza
-  keyPhrases.KeyPhrases.sort((a, b) => b.Score - a.Score);
-  console.log("Frasi chiave: ",keyPhrases.KeyPhrases);
-
   // Ordinamento dei termini in base al conteggio delle occorrenze
   const sortedTerms = Object.entries(termineCounts).sort((a, b) => b[1] - a[1]);
+
   // Selezione dei primi 5 termini più usati
   const usedTerms = sortedTerms.slice(0, 5).map(entry => entry[0]);
 
@@ -34,5 +32,5 @@ exports.analyzeText = async (text) => {
     return length > (longest.EndOffset - longest.BeginOffset) ? phrase : longest;
   }, { Text: 'N/A', BeginOffset: 0, EndOffset: 0 }).Text;
 
-  return { usedTerms, topic};
+  return { usedTerms, topic };
 };
