@@ -7,6 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatCardModule } from '@angular/material/card';
 import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
 import { AuthService } from './services/auth.service';
@@ -27,7 +28,10 @@ import { NotificationService } from './services/notification.service';
     MatIconModule,
     MatMenuModule,
     MatDialogModule, 
-    CommonModule
+    MatCardModule,
+    CommonModule,
+    LoginComponent,
+    RegisterComponent
   ],
   templateUrl: './app.component.html'
 })
@@ -37,6 +41,7 @@ export class AppComponent implements OnInit{
   isLoggedIn$!: Observable<boolean>;  // Observable che gestisce lo stato di autenticazione
   currentUser$!: Observable<string | null>;  // Observable per l'utente corrente 
   username!: string | null;
+  showLogin: boolean = true;
 
   constructor(
     public dialog: MatDialog,
@@ -71,6 +76,14 @@ export class AppComponent implements OnInit{
       width: '400px',
       height: '500px'
     });
+  }
+
+  openRegisterComponent(): void {
+    this.router.navigate(['/register']);
+  }
+
+  toggleForm(): void {
+    this.showLogin = !this.showLogin;
   }
 
   logout(): void {

@@ -58,7 +58,11 @@
                 </button>
             </div>
         </div>
-        
+        <div style="margin-top: 40px;">
+            <mat-chip-listbox multiple selectable>
+                <mat-chip-option *ngFor="let label of labels">{{ label }}</mat-chip-option>
+            </mat-chip-listbox>
+        </div>
         <div class="div-sotto">
             <div class="flex">
                 <button style="margin-right: 10px;" mat-icon-button *ngIf="selectedFolder" (click)="clearSelectedFolder()" >

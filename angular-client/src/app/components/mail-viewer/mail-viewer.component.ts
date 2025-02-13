@@ -20,6 +20,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule, NgFor } from '@angular/common';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatChipsModule } from '@angular/material/chips';
 
 import { NotificationService } from '../../services/notification.service';
 import { EmailService } from '../../services/email.service';
@@ -52,6 +53,7 @@ import { AddFolderComponent } from '../add-folder/add-folder.component';
     MatSidenavModule,
     MatCheckboxModule,
     MatDialogModule,
+    MatChipsModule,
     FormsModule,
     ReactiveFormsModule,
     RouterLink,
@@ -74,6 +76,7 @@ export class MailViewerComponent {
   isLoadingEmails: boolean = false;
   isLoadingFolders: boolean = false;
   allSelected: boolean = false;
+  labels: string[] = ['Lavoro', 'Personale', 'Importante', 'Spam'];
 
   protected form: FormGroup = new FormGroup({
     cerca: new FormControl('', Validators.required)
@@ -305,5 +308,10 @@ export class MailViewerComponent {
   clearSelectedFolder(): void {
     this.selectedFolder = null;
     this.getUserEmailsOrSearchBy(0);
+  }
+
+  deselectChip(event: Event): void {
+    const chip = event.target as HTMLElement;
+    chip.classList.remove('mat-chip-selected');
   }
 }

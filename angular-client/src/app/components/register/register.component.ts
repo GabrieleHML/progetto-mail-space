@@ -43,11 +43,9 @@ export class RegisterComponent {
   });
 
   constructor(
-    public dialog: MatDialog, 
     private authService: AuthService, 
     private notifica: NotificationService,
-    @Inject(MAT_DIALOG_DATA) public data: any, 
-    private dialogRef: MatDialogRef<RegisterComponent>
+    private dialog: MatDialog
   ) { }
 
   openConfirmationDialog(): void {
@@ -78,7 +76,6 @@ export class RegisterComponent {
     this.authService.signUp(username, password, email).subscribe({
       next: (response) => {
         console.log('Registrazione avvenuta con successo:', response);
-        this.dialogRef.close();
         this.openConfirmationDialog();
       }, error: (error) => {
         this.notifica.show('Errore durante la registrazione. Riprova', 'Chiudi');

@@ -8,8 +8,8 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { AuthService } from '../../services/auth.service';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { NotificationService } from '../../services/notification.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -36,9 +36,8 @@ export class LoginComponent {
 
   constructor(
     private authService: AuthService,
-    @Inject(MAT_DIALOG_DATA) public data: any, 
-    private dialogRef: MatDialogRef<LoginComponent>,
-    private notifica: NotificationService
+    private notifica: NotificationService,
+    private router: Router
   ) {}
 
   onLogin() {
@@ -50,11 +49,14 @@ export class LoginComponent {
     const { username, password } = this.form.value;
   
     this.authService.signIn(username, password).subscribe({
-      next: () => {
-        this.dialogRef.close();
+      next: (response) => {
+        console.log('Accesso avvenuto con successo:', response);
+        this.notifica.show('Accesso avvenuto con successo!', 'Chiudi');
+        this.router.navigate(['/mails']);
       },
-      error: () => {
+      error: (error) => {
         this.notifica.show('Errore durante l\'accesso. Riprova', 'Chiudi');
+        console.error('Errore durante l\'accesso:', error);
         this.form.reset();
       }
     });

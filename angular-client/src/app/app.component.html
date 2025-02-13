@@ -1,7 +1,8 @@
 <div class="flex flex-col min-h-screen">
   <mat-toolbar class="bg-blue-500 text-white">
     <div class="flex items-center ml-2.5">
-      <button mat-button class="text-white" style="font-size: large;" [routerLink]="['/']">Home</button>
+      <span class="text-2xl font-bold">MailSpace</span>
+      <button mat-button class="text-white" style="font-size: large;" *ngIf="!(isLoggedIn$)" [routerLink]="['/']">Home</button>
       <button mat-button class="text-white" style="font-size: large;" *ngIf="isLoggedIn$ | async" [routerLink]="['/mails']">Email</button>
     </div>
     
@@ -23,31 +24,32 @@
 
   <div class="main-container flex-grow" [ngClass]="{'mail-viewer-container': router.url.includes('/mails')}">
     <router-outlet></router-outlet>
-    
-    <div *ngIf="router.url === '/'" class="presentation-container">
-      <h2 class="text-3xl font-bold mb-4">Benvenuto nella nostra applicazione di analisi email</h2>
-      <p class="mb-6">Questa applicazione ti permette di analizzare un insieme di email caricate per identificare i termini più usati e gli argomenti trattati.</p>
-      
-      <h3 class="text-2xl font-semibold mb-2">Caricamento delle email</h3>
-      <p class="mb-4">Puoi caricare le email manualmente inserendo mittente, oggetto e testo oppure caricando un file con estensione .eml.</p>
-      
-      <h3 class="text-2xl font-semibold mb-2">Filtri disponibili</h3>
-      <p class="mb-4">Puoi applicare i seguenti filtri per analizzare le email:</p>
-      <ul class="list-disc list-inside mb-6">
-        <li>Mittente</li>
-        <li>Argomento</li>
-        <li>Parole chiave</li>
-        <li>O tutti e tre i filtri contemporaneamente</li>
-      </ul>
-      
-      <h3 class="text-2xl font-semibold mb-2">Raccolta in cartelle</h3>
-      <p class="mb-4">L'applicazione permette di creare cartelle personalizzate e inserire le email selezionate in queste cartelle per una migliore organizzazione.</p>
-    </div>
+    <ng-container *ngIf="router.url === '/'">
+      <div class="home-page-container p-8">
+        <mat-card class="w-full max-w-sm p-6 flex flex-col justify-center items-center">
+          <ng-container *ngIf="showLogin; else registerTemplate">
+            <app-login></app-login>
+            <div class="text-center mt-4">
+              <a href="#" (click)="toggleForm()">Non registrato? Registrati</a>
+            </div>
+          </ng-container>
+          <ng-template #registerTemplate>
+            <app-register></app-register>
+            <div class="text-center mt-4">
+              <a href="#" (click)="toggleForm()">Hai già un account? Accedi</a>
+            </div>
+          </ng-template>
+          <div class="text-center mt-2">
+            <a href="#">Hai dimenticato la password?</a>
+          </div>
+        </mat-card>
+      </div>
+    </ng-container>
   </div>
 
   <footer class="bg-gray-800 text-white py-4 mt-4">
     <div class="container mx-auto text-center">
-      <p>&copy; 2025 Email Project. All rights reserved.</p>
+      <p>&copy; 2025 MailSpace. All rights reserved.</p>
       <p>
         <a href="/privacy" class="text-blue-400">Privacy Policy</a> | 
         <a href="/terms" class="text-blue-400">Terms of Service</a>
