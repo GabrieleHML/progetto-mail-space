@@ -29,6 +29,7 @@ import { FolderService } from '../../services/folder.service';
 import { Email } from '../../models/email';
 import { Folder } from '../../models/folder';
 import { AddFolderComponent } from '../add-folder/add-folder.component';
+import { LabelsService } from '../../services/labels.service';
 
 
 @Component({
@@ -76,7 +77,7 @@ export class MailViewerComponent {
   isLoadingEmails: boolean = false;
   isLoadingFolders: boolean = false;
   allSelected: boolean = false;
-  labels: string[] = ['Lavoro', 'Personale', 'Importante', 'Spam'];
+  labels: string[] = ['ciao'];
 
   protected form: FormGroup = new FormGroup({
     cerca: new FormControl('', Validators.required)
@@ -89,6 +90,7 @@ export class MailViewerComponent {
     private emailService: EmailService,
     private dialog: MatDialog,
     private folderService: FolderService,
+    private labelsService: LabelsService
   ) { }
 
   ngOnInit(): void {
@@ -97,6 +99,7 @@ export class MailViewerComponent {
     this.isLoadingFolders = true;
     this.getFolders();
     this.handleStateMessage();
+    this.getLabels();
   }
 
   handleStateMessage(): void {
@@ -314,4 +317,16 @@ export class MailViewerComponent {
     const chip = event.target as HTMLElement;
     chip.classList.remove('mat-chip-selected');
   }
+
+  getLabels(): void {
+    this.labelsService.getLabels().subscribe({
+      next: (data) => {
+        this.labels = data;
+      },
+      error: (err) => {
+        console.error('Errore durante il recupero delle etichette:', err);
+      }
+    });
+  }
+
 }

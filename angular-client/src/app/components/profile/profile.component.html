@@ -1,0 +1,11 @@
+<mat-card class="profile-container">
+  <mat-card-title><h3>Profilo Utente</h3></mat-card-title>
+  <mat-card-content class="profile-details">
+    <p><strong>Username:</strong> {{ username }}</p>
+    <p><strong>Email:</strong> {{ email }}</p>
+    <p><strong>Stato Account:</strong> 
+        <span class="confirmed"> Confermato</span>
+    </p>
+    <a href="javascript:void(0)" (click)="openResetPwdDialog()" class="change-password-link">Modifica Password</a>
+  </mat-card-content>
+</mat-card>

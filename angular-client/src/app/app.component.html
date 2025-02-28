@@ -1,24 +1,17 @@
 <div class="flex flex-col min-h-screen">
   <mat-toolbar class="bg-blue-500 text-white">
     <div class="flex items-center ml-2.5">
-      <span class="text-2xl font-bold">MailSpaceee</span>
-      <button mat-button class="text-white" style="font-size: large;" *ngIf="!(isLoggedIn$)" [routerLink]="['/']">Home</button>
-      <button mat-button class="text-white" style="font-size: large;" *ngIf="isLoggedIn$ | async" [routerLink]="['/mails']">Email</button>
+      <span class="text-2xl font-bold mr-2">MailSpace</span>
+      <button mat-button class="text-white mr-2" style="font-size: large;" *ngIf="isLoggedIn$ | async" [routerLink]="['/mails']">Home</button>
+      <button mat-button class="text-white mr-2" style="font-size: large;" *ngIf="isLoggedIn$ | async" [routerLink]="['/profile']">Profilo</button>
     </div>
     
     <span class="flex-1"></span>
     
     <div class="flex items-center mr-5">
+      <button mat-button color="primary" *ngIf="!(isLoggedIn$ | async)" (click)="openConfirmationDialog()">Conferma Account</button>
       <span *ngIf="currentUser$ | async as username" class="mr-2">{{ username }}</span>
-      <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="User profile and actions">
-        <mat-icon>account_circle</mat-icon>
-        <mat-icon>arrow_drop_down</mat-icon>
-      </button>
-      <mat-menu #menu="matMenu">
-        <button mat-menu-item *ngIf="!(isLoggedIn$ | async)" (click)="openLoginDialog()">Accedi</button>
-        <button mat-menu-item *ngIf="!(isLoggedIn$ | async)" (click)="openRegisterDialog()">Registrati</button>
-        <button mat-menu-item *ngIf="(isLoggedIn$ | async)" (click)="logout()">Esci</button>
-      </mat-menu>
+      <button *ngIf="(isLoggedIn$ | async)" (click)="logout()" class="ml-2" style="margin-top: 7px;"><mat-icon>logout</mat-icon></button>
     </div>
   </mat-toolbar>
 
@@ -32,6 +25,9 @@
             <div class="text-center mt-4">
               <a href="#" (click)="toggleForm()">Non registrato? Registrati</a>
             </div>
+            <div class="text-center mt-2">
+              <button (click)="openForgotPwdDialog()">Hai dimenticato la password?</button>
+            </div>
           </ng-container>
           <ng-template #registerTemplate>
             <app-register></app-register>
@@ -39,9 +35,6 @@
               <a href="#" (click)="toggleForm()">Hai già un account? Accedi</a>
             </div>
           </ng-template>
-          <div class="text-center mt-2">
-            <a href="#">Hai dimenticato la password?</a>
-          </div>
         </mat-card>
       </div>
     </ng-container>

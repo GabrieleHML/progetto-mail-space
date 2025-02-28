@@ -85,3 +85,94 @@ exports.logout = async (req, res) => {
     res.status(400).json(error);
   }
 };
+
+exports.getUserDetails = async (req, res) => {
+  const { username } = req.user;
+
+  const params = {
+    UserPoolId: process.env.USER_POOL_ID,
+    Username: username
+  };
+
+  try {
+    const data = await cognito.adminGetUser(params).promise();
+    const email = data.UserAttributes.find(attr => attr.Name === 'email').Value;
+    res.json({ username, email });
+  } catch (error) {
+    console.error('Errore durante il recupero dei dettagli utente: ', error);
+    res.status(400).json({ error: 'Errore durante il recupero dei dettagli utente' });
+  }
+};
+
+exports.isAccountConfirmed = async (req, res) => {
+  const { username } = req.user;
+
+  const params = {
+    UserPoolId: process.env.USER_POOL_ID,
+    Username: username
+  };
+
+  try {
+    const data = await cognito.adminGetUser(params).promise();
+    const confirmed = data.UserStatus === 'CONFIRMED';
+    res.json({ confirmed });
+  } catch (error) {
+    console.error('Errore durante il controllo dello stato dell\'account: ', error);
+    res.status(400).json({ error: 'Errore durante il controllo dello stato dell\'account' });
+  }
+};
+
+exports.requestPasswordReset = async (req, res) => {
+  const { email } = req.body;
+  const params = {
+    ClientId: CLIENT_ID,
+    Username: email,
+  };
+
+  try {
+    await cognito.forgotPassword(params).promise();
+    console.log('Codice di reset inviato con successo!');
+    res.json({ message: 'Codice di reset inviato con successo!' });
+  } catch (error) {
+    console.error('Errore durante l\'invio del codice di reset: ', error);
+    res.status(400).json({ error: 'Errore durante l\'invio del codice di reset' });
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  const { email, confirmationCode, newPassword } = req.body;
+  const params = {
+    ClientId: CLIENT_ID,
+    Username: email,
+    ConfirmationCode: confirmationCode,
+    Password: newPassword,
+  };
+
+  try {
+    await cognito.confirmForgotPassword(params).promise();
+    console.log('Password reimpostata con successo!');
+    res.json({ message: 'Password reimpostata con successo!' });
+  } catch (error) {
+    console.error('Errore durante la reimpostazione della password: ', error);
+    res.status(400).json({ error: 'Errore durante la reimpostazione della password' });
+  }
+};
+
+exports.changePassword = async (req, res) => {
+  const { oldPassword, newPassword } = req.body;
+
+  const params = {
+    AccessToken: req.user.accessToken,
+    PreviousPassword: oldPassword,
+    ProposedPassword: newPassword
+  };
+
+  try {
+    await cognito.changePassword(params).promise();
+    console.log('Password modificata con successo!');
+    res.json({ message: 'Password modificata con successo!' });
+  } catch (error) {
+    console.error('Errore durante la modifica della password: ', error);
+    res.status(400).json({ error: 'Errore durante la modifica della password' });
+  }
+};

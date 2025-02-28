@@ -14,6 +14,8 @@ import { AuthService } from './services/auth.service';
 import { CommonModule } from '@angular/common';
 import { Observable } from 'rxjs';
 import { NotificationService } from './services/notification.service';
+import { ConfirmationCodeComponent } from './components/confirmation-code/confirmation-code.component';
+import { ForgotPwdComponent } from './components/forgot-pwd/forgot-pwd.component';
 
 @Component({
   selector: 'app-root',
@@ -98,5 +100,31 @@ export class AppComponent implements OnInit{
         error: err => console.error('Errore durante il logout', err)
       });
     }
+  }
+
+  openConfirmationDialog(): void {
+    const dialogRef = this.dialog.open(ConfirmationCodeComponent, {
+      width: '420px',
+      height: '350px'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.notifica.show('Registrazione completata con successo!', '');
+      }
+    });
+  }
+
+  openForgotPwdDialog(): void {
+    const dialogRef = this.dialog.open(ForgotPwdComponent, {
+      width: '400px',
+      height: '300px'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.notifica.show('Password reimpostata con successo!', '');
+      }
+    });
   }
 }

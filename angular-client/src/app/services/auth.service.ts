@@ -16,7 +16,6 @@ export class AuthService {
   private currentUserSubject = new BehaviorSubject<string>('');
   public currentUser$: Observable<string> = this.currentUserSubject.asObservable();
 
-
   constructor(private http: HttpClient) { 
     this.loadFromLocalStorage();  // Carica lo stato di autenticazione e l'utente dal localStorage all'avvio
   }
@@ -111,5 +110,61 @@ export class AuthService {
     const url = `${this.baseUrl}/demoPage`;
     const headers = new HttpHeaders().set('Authorization', token);
     return this.http.get(url, { headers });
+  }
+
+  getUserDetails(): Observable<any> {
+    const token = this.getToken();
+    if (!token) {
+      throw new Error('No token found');
+    }
+  
+    const url = `${this.baseUrl}/userDetails`;
+    const headers = new HttpHeaders().set('Authorization', token);
+    return this.http.get(url, { headers });
+  }
+  
+  isAccountConfirmed(): Observable<boolean> {
+    const token = this.getToken();
+    if (!token) {
+      throw new Error('No token found');
+    }
+  
+    const url = `${this.baseUrl}/isConfirmed`;
+    const headers = new HttpHeaders().set('Authorization', token);
+    return this.http.get<{ confirmed: boolean }>(url, { headers }).pipe(
+      map(response => response.confirmed)
+    );
+  }
+
+  requestPasswordReset(email: string): Observable<any> {
+    const url = `${this.baseUrl}/requestPasswordReset`;
+    return this.http.post(url, { email });
+  }
+
+  resetPassword(email: string, confirmationCode: string, newPassword: string): Observable<any> {
+    const url = `${this.baseUrl}/resetPassword`;
+    return this.http.post(url, { email, confirmationCode, newPassword });
+  }
+
+  changePassword(oldPassword: string, newPassword: string): Observable<any> {
+    const token = this.getToken();
+    if (!token) {
+      throw new Error('No token found');
+    }
+  
+    const url = `${this.baseUrl}/changePassword`;
+    const headers = new HttpHeaders().set('Authorization', token);
+    const body = { oldPassword, newPassword };
+  
+    return this.http.post(url, body, { headers }).pipe(
+      map(response => {
+        console.log('Password modificata con successo: ', response);
+        return response;
+      }),
+      catchError(err => {
+        console.error('Errore durante la modifica della password: ', err);
+        return throwError(() => err);
+      })
+    );
   }
 }

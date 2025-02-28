@@ -1,0 +1,24 @@
+<div class="flex justify-center items-center h-full">
+    <form class="w-full max-w-sm" [formGroup]="resetPwdForm" (ngSubmit)="onSubmit()">
+        <h2 class="text-center text-3xl font-bold mb-6">Modifica password</h2>
+        <mat-form-field class="w-full" appearance="fill">
+            <mat-label>Vecchia Password</mat-label>
+            <input matInput type="password" formControlName="oldPassword" required>
+            <mat-icon matSuffix>lock</mat-icon>
+            <mat-error *ngIf="resetPwdForm.get('oldPassword')?.hasError('required')">Vecchia password obbligatoria</mat-error>
+        </mat-form-field>
+        <mat-form-field class="w-full" appearance="fill">
+            <mat-label>Nuova Password</mat-label>
+            <input matInput type="password" formControlName="newPassword" required>
+            <mat-icon matSuffix>lock</mat-icon>
+            <mat-hint>La password deve contenere almeno 1 numero, 1 carattere speciale, 1 carattere maiuscolo, 1 carattere minuscolo, per un minimo di 8 caratteri.</mat-hint>
+            <mat-error *ngIf="resetPwdForm.get('newPassword')?.hasError('required')">Nuova password obbligatoria</mat-error>
+            <mat-error *ngIf="resetPwdForm.get('newPassword')?.hasError('minlength')">La password deve essere di almeno 8 caratteri</mat-error>
+        </mat-form-field>
+        <div class="flex justify-end mt-7">
+            <button mat-raised-button color="primary" type="submit" [disabled]="resetPwdForm.invalid">Modifica Password</button>
+        </div>
+    </form>
+</div>
+
+

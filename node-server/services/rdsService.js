@@ -250,3 +250,61 @@ exports.removeEmailsFromFolder = async (s3Keys, folderId) => {
     throw error;
   }
 };
+
+exports.getLabels = async (userEmail) => {
+  const insertQuery = `
+    INSERT INTO user_labels (user_email)
+    VALUES ($1)
+    ON CONFLICT (user_email) DO NOTHING
+  `;
+  const selectQuery = `
+    SELECT *
+    FROM user_labels
+    WHERE user_email = $1
+  `;
+  
+  try {
+    await pool.query(insertQuery, [userEmail]);
+    const result = await pool.query(selectQuery, [userEmail]);
+    return result.rows;
+  } catch (error) {
+    console.error('Errore nel recupero delle etichette:', error);
+    throw error;
+  }
+};
+
+exports.addLabel = async (userEmail, labelName) => {
+  const query = `
+    UPDATE user_labels 
+    SET user_labels = array_append(user_labels, $2) 
+    WHERE user_email = $1
+  `;
+
+  const values = [userEmail, labelName];
+
+  try {
+    const result = await pool.query(query, values);
+    return result.rows[0].id;
+  } catch (error) {
+    console.error('Errore nell\'aggiunta dell\'etichetta:', error);
+    throw error;
+  }
+};
+
+exports.deleteLabel = async (userEmail, labelName) => {
+  const query = `
+    UPDATE user_labels 
+    SET user_labels = array_remove(user_labels, $2) 
+    WHERE user_email = $1
+  `;
+
+  const values = [userEmail, labelName];
+
+  try {
+    await pool.query(query, values);
+    console.log('L\'etichetta è stata eliminata con successo!');
+  } catch (error) {
+    console.error('Errore nell\'eliminazione dell\'etichetta:', error);
+    throw error;
+  }
+};
