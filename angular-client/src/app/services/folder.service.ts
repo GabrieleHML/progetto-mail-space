@@ -9,9 +9,9 @@ import { Folder } from '../models/folder';
 })
 export class FolderService {
 
-  private baseUrl = 'http://localhost:3000/folder';
+  // private baseUrl = 'http://localhost:3000/folder';
   // private baseUrl = 'http://34.247.122.14:3000/folder'; 
-  // private baseUrl = 'https://emailproject.linkpc.net/folder';
+  private baseUrl = 'https://emailproject.linkpc.net/folder';
 
   constructor(private http: HttpClient, private authService: AuthService) { }
 
