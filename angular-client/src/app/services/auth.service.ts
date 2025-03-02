@@ -122,28 +122,6 @@ export class AuthService {
     const headers = new HttpHeaders().set('Authorization', token);
     return this.http.get<any>(url, { headers });
   }
-  /*
-  getLabels(): Observable<string[]> {
-        const token = this.authService.getToken();
-        if (!token) {
-            return throwError(() => new Error('Token non trovato!'));
-        }
-
-        const url = `${this.baseUrl}/get`;
-        const headers = new HttpHeaders().set('Authorization', token);
-
-        return this.http.get<string[]>(url, { headers }).pipe(
-            map((response: string[]) => {
-                console.log('Etichette ottenute con successo!');
-                return response;
-            }),
-            catchError((error: any) => {
-                return throwError(() => new Error(`Errore durante il recupero delle etichette: ${error.status} ${error.statusText}`));
-            })
-        );
-    }
-  */
-
   
   isAccountConfirmed(): Observable<boolean> {
     const token = this.getToken();
