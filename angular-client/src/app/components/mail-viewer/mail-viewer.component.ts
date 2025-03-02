@@ -77,7 +77,7 @@ export class MailViewerComponent {
   isLoadingEmails: boolean = false;
   isLoadingFolders: boolean = false;
   allSelected: boolean = false;
-  labels: string[] = ['ciao'];
+  labels: string[] = [];
 
   protected form: FormGroup = new FormGroup({
     cerca: new FormControl('', Validators.required)
@@ -320,7 +320,7 @@ export class MailViewerComponent {
 
   getLabels(): void {
     this.labelsService.getLabels().subscribe({
-      next: (data) => {
+      next: (data: string[]) => {
         this.labels = data;
       },
       error: (err) => {

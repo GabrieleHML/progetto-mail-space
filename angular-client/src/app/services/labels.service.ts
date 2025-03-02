@@ -54,7 +54,7 @@ export class LabelsService {
         );
     }
 
-    getLabels(): Observable<any> {
+    getLabels(): Observable<string[]> {
         const token = this.authService.getToken();
         if (!token) {
             return throwError(() => new Error('Token non trovato!'));
@@ -63,8 +63,8 @@ export class LabelsService {
         const url = `${this.baseUrl}/get`;
         const headers = new HttpHeaders().set('Authorization', token);
 
-        return this.http.get(url, { headers }).pipe(
-            map((response: any) => {
+        return this.http.get<string[]>(url, { headers }).pipe(
+            map((response: string[]) => {
                 console.log('Etichette ottenute con successo!');
                 return response;
             }),

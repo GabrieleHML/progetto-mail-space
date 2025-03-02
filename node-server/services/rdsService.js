@@ -258,7 +258,7 @@ exports.getLabels = async (userEmail) => {
     ON CONFLICT (user_email) DO NOTHING
   `;
   const selectQuery = `
-    SELECT *
+    SELECT user_labels
     FROM user_labels
     WHERE user_email = $1
   `;
@@ -266,7 +266,7 @@ exports.getLabels = async (userEmail) => {
   try {
     await pool.query(insertQuery, [userEmail]);
     const result = await pool.query(selectQuery, [userEmail]);
-    return result.rows;
+    return result.rows[0].user_labels || [];
   } catch (error) {
     console.error('Errore nel recupero delle etichette:', error);
     throw error;
