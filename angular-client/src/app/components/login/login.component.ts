@@ -50,7 +50,7 @@ export class LoginComponent {
   
     this.authService.signIn(username, password).subscribe({
       next: (response) => {
-        console.log('Accesso avvenuto con successo:', response);
+        console.log('Accesso avvenuto con successo');
         this.notifica.show('Accesso avvenuto con successo!', 'Chiudi');
         this.router.navigate(['/mails']);
       },

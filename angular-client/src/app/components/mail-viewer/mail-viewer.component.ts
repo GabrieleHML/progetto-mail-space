@@ -328,5 +328,4 @@ export class MailViewerComponent {
       }
     });
   }
-
 }

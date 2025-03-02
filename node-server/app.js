@@ -15,7 +15,7 @@ app.use(bodyParser.json());
 app.use('/auth', authRoutes);
 app.use('/email', emailRoutes);
 app.use('/folder', folderRoutes);
-app.use('/label', labelRoutes);
+app.use('/labels', labelRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: 'Page not found' });
