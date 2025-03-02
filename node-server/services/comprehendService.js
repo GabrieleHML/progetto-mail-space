@@ -26,11 +26,5 @@ exports.analyzeText = async (text) => {
   // Selezione dei primi 5 termini più usati
   const usedTerms = sortedTerms.slice(0, 5).map(entry => entry[0]);
 
-  // Estrazione del termine chiave più lungo come argomento principale
-  const topic = keyPhrases.KeyPhrases.reduce((longest, phrase) => {
-    const length = phrase.EndOffset - phrase.BeginOffset;
-    return length > (longest.EndOffset - longest.BeginOffset) ? phrase : longest;
-  }, { Text: 'N/A', BeginOffset: 0, EndOffset: 0 }).Text;
-
-  return { usedTerms, topic };
+  return { usedTerms };
 };

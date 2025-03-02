@@ -6,40 +6,40 @@ exports.insertEmail = async (emailData) => {
       user_email, 
       sender, 
       subject, 
-      s3_key, 
+      body, 
       used_terms, 
-      topic
+      labels
     )
     VALUES ($1, $2, $3, $4, $5, $6)
-    RETURNING s3_key
+    RETURNING id
   `;
     
   const values = [
     emailData.userEmail,
     emailData.sender,
     emailData.subject,
-    emailData.s3Key,
+    emailData.body,
     emailData.usedTerms,
-    emailData.topic
+    emailData.labels
   ];
 
   try {
     const result = await pool.query(query, values);
-    return result.rows[0].s3_key;
+    return result.rows[0].id;
   } catch (error) {
     console.error('Errore nel salvataggio dell\'email:', error);
     throw error;
   }
 };
 
-exports.deleteEmails = async (s3Keys) => {
+exports.deleteEmails = async (emailIds) => {
   const query = `
     DELETE FROM emails
-    WHERE s3_key = ANY($1::varchar[])
+    WHERE id = ANY($1::int[])
   `;
 
   try {
-    await pool.query(query, [s3Keys]);
+    await pool.query(query, [emailIds]);
     console.log('Le email selezionate sono state eliminate con successo!');
   } catch (error) {
     console.error('Errore nell\'eliminazione delle email selezionate:', error);
@@ -192,19 +192,19 @@ exports.deleteFolder = async (folderId) => {
   }
 };
 
-exports.addEmailsToFolder = async (s3Keys, folderId) => {
+exports.addEmailsToFolder = async (emailIds, folderId) => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
 
     const emailFolderQuery = `
-      INSERT INTO email_folders (email_s3_key, folder_id)
+      INSERT INTO email_folders (email_id, folder_id)
       VALUES ($1, $2)
       ON CONFLICT DO NOTHING
     `;
 
-    for (const s3Key of s3Keys) {
-      await client.query(emailFolderQuery, [s3Key, folderId]);
+    for (const emailId of emailIds) {
+      await client.query(emailFolderQuery, [emailId, folderId]);
     }
 
     await client.query('COMMIT');
@@ -221,7 +221,7 @@ exports.getEmailsFromFolder = async (folderId) => {
   const query = `
     SELECT e.*
     FROM emails e
-    JOIN email_folders ef ON e.s3_key = ef.email_s3_key
+    JOIN email_folders ef ON e.id = ef.email_id
     WHERE ef.folder_id = $1
   `;
   const values = [folderId];
@@ -235,12 +235,12 @@ exports.getEmailsFromFolder = async (folderId) => {
   }
 };
 
-exports.removeEmailsFromFolder = async (s3Keys, folderId) => {
+exports.removeEmailsFromFolder = async (emailIds, folderId) => {
   const query = `
     DELETE FROM email_folders
-    WHERE email_s3_key = ANY($1::varchar[]) AND folder_id = $2
+    WHERE email_id = ANY($1::int[]) AND folder_id = $2
   `;
-  const values = [s3Keys, folderId];
+  const values = [emailIds, folderId];
 
   try {
     await pool.query(query, values);

@@ -59,7 +59,7 @@ export class EmailService {
     );
   }
 
-  deleteEmails(s3Keys: string[]): Observable<any> {
+  deleteEmails(emailIds: number[]): Observable<any> {
     const token = this.authService.getToken();
     if (!token) {
       return throwError(() => new Error('Token non trovato!'));
@@ -67,7 +67,7 @@ export class EmailService {
 
     const url = `${this.baseUrl}/delete`;
     const headers = new HttpHeaders().set('Authorization', token);
-    const body = { s3Keys };
+    const body = { emailIds };
 
     return this.http.post(url, body, { headers }).pipe(
       map((response: any) => {

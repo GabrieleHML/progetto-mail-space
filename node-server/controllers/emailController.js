@@ -1,42 +1,33 @@
-const s3Service = require('../services/s3Service');
 const comprehendService = require('../services/comprehendService');
 const rdsService = require('../services/rdsService');
 const fs = require('fs');
 const emlParser = require('eml-parser');
 
 const processEmail = async (sender, subject, body, userEmail, res) => {
-  let s3Key, usedTerms, topic;
-  
-  try {
-    // 1. Carica il contenuto su S3
-    s3Key = await s3Service.uploadEmail(userEmail, body);
-  } catch (error) {
-    console.error('Errore durante il caricamento su S3');
-    return res.status(500).json({ message: 'Errore nel caricamento su S3', error });
-  }
+  let usedTerms;
 
+  // 1. Trovo i termini più usati con Amazon Comprehend
   try {
-    // 2. Analizza il testo con Amazon Comprehend
     const analysisResult = await comprehendService.analyzeText(body);
     usedTerms = analysisResult.usedTerms;
-    topic = analysisResult.topic;
   } catch (error) {
     console.error('Errore durante l\'analisi del testo con Amazon Comprehend');
     return res.status(500).json({ message: 'Errore nell\'analisi del testo', error });
   }
+  // TODO 2. Associo le labels alla mail con API di chatGPT
 
+  // 3. Salvo i dati nel database RDS
   try {
-    // 3. Salvataggio nel database RDS
     const emailData = {
       userEmail,
       sender,
       subject,
-      s3Key,
+      body,
       usedTerms,
-      topic,
+      labels: []
     };
     await rdsService.insertEmail(emailData);
-    res.json({ s3Key, usedTerms, topic });
+    res.json({ usedTerms });
   } catch (error) {
     console.error('Errore durante il salvataggio nel database RDS');
     res.status(500).json({ message: 'Errore nel salvataggio nel database', error });
@@ -60,11 +51,11 @@ exports.uploadEmail = async (req, res) => {
 // Metodo di eliminazione che riceve le chiavi delle email da eliminare
 exports.deleteEmails = async (req, res) => {
   try {
-    const s3Keys = req.body.s3Keys;
-    if (!Array.isArray(s3Keys) || s3Keys.length === 0) {
-      return res.status(400).json({ message: 'Array s3Keys invalido o vuoto' });
+    const emailIds = req.body.emailIds;
+    if (!Array.isArray(emailIds) || emailIds.length === 0) {
+      return res.status(400).json({ message: 'Array emailIds invalido o vuoto' });
     }
-    await rdsService.deleteEmails(s3Keys);
+    await rdsService.deleteEmails(emailIds);
     res.json({ message: 'Email eliminate con successo' });
   } catch (error) {
     res.status(500).json({ message: 'Errore nell eliminazione delle email', error });
@@ -127,9 +118,6 @@ exports.getUserEmailsOrSearchBy = async (req, res) => {
     const option = req.body.option;
     const word = req.body.word || ''; // Parola da cercare, nulla se l'opzione è 0
 
-    // Lista di email da inviare al Client
-    const emailsClient = [];
-    
     // Lista di email da RDS
     let emails_RDS = [];
 
@@ -153,17 +141,7 @@ exports.getUserEmailsOrSearchBy = async (req, res) => {
         res.status(400).json({ message: 'Opzione non valida' });
     }
 
-    // Per ogni email, ottengo il body da S3 e lo aggiungo alla lista da inviare al Client
-    for (const email of emails_RDS) {
-      const body = await s3Service.getEmailContent(email.s3_key);
-      emailsClient.push({
-        sender: email.sender,
-        subject: email.subject,
-        body: body,
-        s3_key: email.s3_key
-      });
-    }
-    res.json(emailsClient);
+    res.json(emails_RDS);
   } catch (error) {
     res.status(500).json({ message: 'Errore nella ricerca delle mail', error });
   }

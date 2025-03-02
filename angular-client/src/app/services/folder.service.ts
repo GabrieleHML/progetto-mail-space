@@ -81,7 +81,7 @@ export class FolderService {
   }
 
   // Aggiunge le email specificate alla cartella specificata
-  addEmailsToFolder(s3Keys: string[], folderId: number): Observable<any> {
+  addEmailsToFolder(emailIds: number[], folderId: number): Observable<any> {
     const token = this.authService.getToken();
     if (!token) {
       return throwError(() => new Error('Token non trovato!'));
@@ -89,7 +89,7 @@ export class FolderService {
     
     const url = `${this.baseUrl}/addEmails`;
     const headers = new HttpHeaders().set('Authorization', token);
-    const body = { s3Keys, folderId };
+    const body = { emailIds, folderId };
     return this.http.post(url, body, { headers }).pipe(
       map((response: any) => {
         console.log('Email aggiunte alla cartella con successo!');
@@ -124,7 +124,7 @@ export class FolderService {
   }
 
   // Rimuove le email specificate dalla cartella specificata
-  removeEmailsFromFolder(s3Keys: string[], folderId: number): Observable<any> {
+  removeEmailsFromFolder(emailIds: number[], folderId: number): Observable<any> {
     const token = this.authService.getToken();
     if (!token) {
       return throwError(() => new Error('Token non trovato!'));
@@ -132,7 +132,7 @@ export class FolderService {
 
     const url = `${this.baseUrl}/removeEmails`;
     const headers = new HttpHeaders().set('Authorization', token);
-    const body = { s3Keys, folderId };
+    const body = { emailIds, folderId };
 
     return this.http.post(url, body, { headers }).pipe(
       map((response: any) => {

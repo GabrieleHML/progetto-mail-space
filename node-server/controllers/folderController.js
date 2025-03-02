@@ -1,5 +1,4 @@
 const rdsService = require('../services/rdsService');
-const s3Service = require('../services/s3Service');
 
 exports.addFolder = async (req, res) => {
   try {
@@ -45,12 +44,12 @@ exports.deleteFolder = async (req, res) => {
 exports.addEmailsToFolder = async (req, res) => {
   try {
     const folderId = req.body.folderId;
-    const s3Keys = req.body.s3Keys;
-    if (!folderId || !Array.isArray(s3Keys) || s3Keys.length === 0) {
-      return res.status(400).json({ message: 'Folder ID and s3Keys are required' });
+    const emailIds = req.body.emailIds;
+    if (!folderId || !Array.isArray(emailIds) || emailIds.length === 0) {
+      return res.status(400).json({ message: 'Folder ID and emailIds are required' });
     }
 
-    await rdsService.addEmailsToFolder(s3Keys, folderId);
+    await rdsService.addEmailsToFolder(emailIds, folderId);
     res.json({ message: 'Emails added to folder successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Error adding emails to folder', error });
@@ -60,26 +59,13 @@ exports.addEmailsToFolder = async (req, res) => {
 exports.getEmailsFromFolder = async (req, res) => {
   try {
     const folderId = req.body.folderId;
-    const emailsClient = [];
 
     if (!folderId) {
       return res.status(400).json({ message: 'Folder ID is required' });
     }
 
     const emails = await rdsService.getEmailsFromFolder(folderId);
-
-    for (const email of emails) {
-      const body = await s3Service.getEmailContent(email.s3_key);
-      const emailClient = {
-        sender: email.sender,
-        subject: email.subject,
-        body: body,
-        s3_key: email.s3_key
-      };
-      emailsClient.push(emailClient);
-    }
-
-    res.json(emailsClient);
+    res.json(emails);
   } catch (error) {
     res.status(500).json({ message: 'Error retrieving emails from folder', error });
   }
@@ -88,13 +74,13 @@ exports.getEmailsFromFolder = async (req, res) => {
 exports.removeEmailsFromFolder = async (req, res) => {
   try {
     const folderId = req.body.folderId;
-    const s3Keys = req.body.s3Keys;
+    const emailIds = req.body.emailIds;
 
-    if (!folderId || !Array.isArray(s3Keys) || s3Keys.length === 0) {
-      return res.status(400).json({ message: 'Folder ID and s3Keys are required' });
+    if (!folderId || !Array.isArray(emailIds) || emailIds.length === 0) {
+      return res.status(400).json({ message: 'Folder ID and emailIds are required' });
     }
 
-    await rdsService.removeEmailsFromFolder(s3Keys, folderId);
+    await rdsService.removeEmailsFromFolder(emailIds, folderId);
     res.json({ message: 'Emails removed from folder successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Error removing emails from folder', error });

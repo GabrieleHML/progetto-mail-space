@@ -200,8 +200,8 @@ export class MailViewerComponent {
   }
 
   deleteEmails(): void {
-    const emailS3Keys = Array.from(this.selectedEmails).map(email => email.s3_key);
-    this.emailService.deleteEmails(emailS3Keys).subscribe({
+    const emailIds = Array.from(this.selectedEmails).map(email => email.id);
+    this.emailService.deleteEmails(emailIds).subscribe({
       next: () => {
         this.emails = this.emails.filter(email => !this.selectedEmails.has(email));
         this.updatePaginatedEmails();
@@ -230,8 +230,8 @@ export class MailViewerComponent {
   }
 
   addEmailsToFolder(folderId: number): void {
-    const s3Keys = Array.from(this.selectedEmails).map(email => email.s3_key);
-    this.folderService.addEmailsToFolder(s3Keys, folderId).subscribe({
+    const emailIds = Array.from(this.selectedEmails).map(email => email.id);
+    this.folderService.addEmailsToFolder(emailIds, folderId).subscribe({
       next: () => {
         this.notifica.show("Email aggiunte alla cartella con successo!", "OK");
         this.selectedEmails.clear();
@@ -266,8 +266,8 @@ export class MailViewerComponent {
   }
 
   removeEmailsFromFolder(): void {
-    const emailS3Keys = Array.from(this.selectedEmails).map(email => email.s3_key);
-    this.folderService.removeEmailsFromFolder(emailS3Keys, this.selectedFolder!.id).subscribe({
+    const emailIds = Array.from(this.selectedEmails).map(email => email.id);
+    this.folderService.removeEmailsFromFolder(emailIds, this.selectedFolder!.id).subscribe({
       next: () => {
         this.emails = this.emails.filter(email => !this.selectedEmails.has(email));
         this.updatePaginatedEmails();

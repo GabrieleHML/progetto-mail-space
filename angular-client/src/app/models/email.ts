@@ -1,13 +1,13 @@
 export class Email {
+    id: number;
     sender: string;
     subject: string;
     body: string;
-    s3_key: string;
 
-    constructor(sender: string, subject: string, body: string, s3_key: string) {
+    constructor(id: number, sender: string, subject: string, body: string) {
+        this.id = id;
         this.sender = sender;
         this.subject = subject;
         this.body = body;
-        this.s3_key = s3_key;
     }
 }
