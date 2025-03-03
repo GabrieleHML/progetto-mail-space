@@ -10,10 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { SnackBarComponent } from '../snack-bar/snack-bar.component';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { LoginComponent } from '../login/login.component';
 import { NotificationService } from '../../services/notification.service';
 
 @Component({

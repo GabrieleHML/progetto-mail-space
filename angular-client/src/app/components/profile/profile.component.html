@@ -1,11 +1,39 @@
 <mat-card class="profile-container">
-  <mat-card-title><h3>Profilo Utente</h3></mat-card-title>
+  <mat-card-title><h3>Il mio account</h3></mat-card-title>
   <mat-card-content class="profile-details">
-    <p><strong>Username:</strong> {{ username }}</p>
     <p><strong>Email:</strong> {{ email }}</p>
-    <p><strong>Stato Account:</strong> 
-        <span class="confirmed"> Confermato</span>
-    </p>
     <a href="javascript:void(0)" (click)="openResetPwdDialog()" class="change-password-link">Modifica Password</a>
+  </mat-card-content>
+</mat-card>
+<mat-card class="profile-container">
+  <mat-card-title><h3>Modifica le tue etichette</h3></mat-card-title>
+  <mat-card-content>
+    <mat-form-field class="chip-list">
+      <mat-label>Etichette</mat-label>
+      <mat-chip-grid #chipGrid aria-label="Enter labels">
+        <mat-chip-row
+          *ngFor="let label of labels"
+          (removed)="remove(label)"
+          [editable]="true"
+          (edited)="edit(label, $event)"
+          [aria-description]="'press enter to edit ' + label"
+        >
+          {{label}}
+          <button matChipRemove [attr.aria-label]="'remove ' + label">
+            <mat-icon>cancel</mat-icon>
+          </button>
+        </mat-chip-row>
+        <input
+          placeholder="Nuova etichetta..."
+          [matChipInputFor]="chipGrid"
+          [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+          [matChipInputAddOnBlur]="addOnBlur"
+          (matChipInputTokenEnd)="add($event)"
+        />
+      </mat-chip-grid>
+    </mat-form-field>
+    <mat-card-actions>
+      <button mat-flat-button (click)="updateLabels()">Salva configurazione</button>
+    </mat-card-actions>
   </mat-card-content>
 </mat-card>

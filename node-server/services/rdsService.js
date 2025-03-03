@@ -273,38 +273,20 @@ exports.getLabels = async (userEmail) => {
   }
 };
 
-exports.addLabel = async (userEmail, labelName) => {
+exports.updateLabels = async (userEmail, labels) => {
   const query = `
     UPDATE user_labels 
-    SET user_labels = array_append(user_labels, $2) 
+    SET user_labels = $2 
     WHERE user_email = $1
   `;
 
-  const values = [userEmail, labelName];
-
-  try {
-    const result = await pool.query(query, values);
-    return result.rows[0].id;
-  } catch (error) {
-    console.error('Errore nell\'aggiunta dell\'etichetta:', error);
-    throw error;
-  }
-};
-
-exports.deleteLabel = async (userEmail, labelName) => {
-  const query = `
-    UPDATE user_labels 
-    SET user_labels = array_remove(user_labels, $2) 
-    WHERE user_email = $1
-  `;
-
-  const values = [userEmail, labelName];
+  const values = [userEmail, labels];
 
   try {
     await pool.query(query, values);
-    console.log('L\'etichetta è stata eliminata con successo!');
+    console.log('Le etichette sono state aggiornate con successo!');
   } catch (error) {
-    console.error('Errore nell\'eliminazione dell\'etichetta:', error);
+    console.error('Errore nell\'aggiornamento delle etichette:', error);
     throw error;
   }
 };

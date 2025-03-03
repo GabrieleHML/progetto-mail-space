@@ -12,7 +12,4 @@ router.post('/requestPasswordReset', authController.requestPasswordReset);
 router.post('/resetPassword', authController.resetPassword);
 router.post('/changePassword', authenticateJWT, authController.changePassword);
 
-router.get('/userDetails', authenticateJWT, authController.getUserDetails);
-router.get('/isConfirmed', authenticateJWT, authController.isAccountConfirmed);
-
 module.exports = router;

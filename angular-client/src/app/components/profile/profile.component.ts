@@ -1,12 +1,16 @@
 import { Component, OnInit } from '@angular/core';
-import { AuthService } from '../../services/auth.service';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ConfirmationCodeComponent } from '../confirmation-code/confirmation-code.component';
-import { Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { ResetPwdComponent } from '../reset-pwd/reset-pwd.component';
 import { NotificationService } from '../../services/notification.service';
+import { LabelsService } from '../../services/labels.service';
+import {MatChipEditedEvent, MatChipInputEvent, MatChipsModule} from '@angular/material/chips';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatIconModule} from '@angular/material/icon';
+import { ENTER, COMMA } from '@angular/cdk/keycodes';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-profile',
@@ -14,39 +18,93 @@ import { NotificationService } from '../../services/notification.service';
   imports: [
     MatDialogModule,
     ConfirmationCodeComponent,
+    ResetPwdComponent,
     CommonModule,
     MatCardModule,
-    ResetPwdComponent
+    MatChipsModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatButtonModule
   ],
   templateUrl: './profile.component.html'
 })
 export class ProfileComponent implements OnInit {
   username!: string;
   email!: string;
-  isConfirmed$!: Observable<boolean>;
+  labels: string[] = [];
+  readonly separatorKeysCodes: number[] = [ENTER, COMMA];
+  addOnBlur = true;
 
   constructor(
-    private authService: AuthService, 
     private dialog: MatDialog,
-    private notifica: NotificationService
+    private notifica: NotificationService,
+    private labelsService: LabelsService
   ) {}
 
   ngOnInit(): void {
-    this.authService.getUserDetails().subscribe(details => {
-      this.username = details.username;
-      this.email = details.email;
-    });
-    this.isConfirmed$ = this.authService.isAccountConfirmed();
+    this.username = localStorage.getItem('username') || '';
+    this.email = localStorage.getItem('email') || '';
+    this.getLabels();
   }
 
   openResetPwdDialog(): void {
-      const dialogRef = this.dialog.open(ResetPwdComponent, {
-        width: '500px',
-        height: '400px'
-      });
+    const dialogRef = this.dialog.open(ResetPwdComponent, {
+      width: '500px',
+      height: '400px'
+    });
   
-      dialogRef.afterClosed().subscribe(result => {
-          this.notifica.show('Password modificata con successo!', '');
-      });
+    dialogRef.afterClosed().subscribe(result => {
+      this.notifica.show('Password modificata con successo!', '');
+    });
+  }
+
+  getLabels(): void {
+    this.labelsService.getLabels().subscribe({
+      next: (data: string[]) => {
+        this.labels = data;
+      },
+      error: (err) => {
+        console.error('Errore durante il recupero delle etichette:', err);
+      }
+    });
+  }
+
+  add(event: MatChipInputEvent): void {
+    const value = (event.value || '').trim();
+    if (value) {
+      this.labels.push(value);
     }
+    event.chipInput!.clear();
+  }
+
+  remove(label: string): void {
+    const index = this.labels.indexOf(label);
+    if (index >= 0) {
+      this.labels.splice(index, 1);
+    }
+  }
+
+  edit(label: string, event: MatChipEditedEvent): void {
+    const value = event.value.trim();
+    if (!value) {
+      this.remove(label);
+      return;
+    }
+    const index = this.labels.indexOf(label);
+    if (index >= 0) {
+      this.labels[index] = value;
+    }
+  }
+
+  updateLabels(): void {
+    this.labelsService.updateLabels(this.labels).subscribe({
+      next: (response) => {
+        console.log('Response: ',response);
+        console.log('Etichette aggiornate con successo!');
+      },
+      error: (err) => {
+        console.error('Errore durante l\'aggiornamento delle etichette:', err);
+      }
+    });
+  }
 }

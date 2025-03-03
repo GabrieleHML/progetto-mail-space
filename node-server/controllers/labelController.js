@@ -11,34 +11,18 @@ exports.getLabels = async (req, res) => {
     }
 };
 
-exports.addLabel = async (req, res) => {
-    try {
-        const labelName = req.body.name;
-        const userEmail = req.user.email;
-    
-        if (!labelName) {
-        return res.status(400).json({ message: 'Label name is required' });
-        }
-    
-        const labelId = await rdsService.addLabel(userEmail, labelName);
-        res.json({ message: 'Label added successfully', labelId });
-    } catch (error) {
-        res.status(500).json({ message: 'Error adding label', error });
-    }
-};
+exports.updateLabels = async (req, res) => {
+  try {
+    const labels = req.body.labels;
+    const userEmail = req.user.email;
 
-exports.deleteLabel = async (req, res) => {
-    try {
-        const labelName = req.body.name;
-        const userEmail = req.user.email;
-    
-        if (!labelName) {
-        return res.status(400).json({ message: 'Label name is required' });
-        }
-    
-        await rdsService.deleteLabel(userEmail, labelName);
-        res.json({ message: 'Label deleted successfully' });
-    } catch (error) {
-        res.status(500).json({ message: 'Error deleting label', error });
+    if (!Array.isArray(labels)) {
+      return res.status(400).json({ message: 'Labels must be an array' });
     }
+
+    await rdsService.updateLabels(userEmail, labels);
+    res.json({ message: 'Labels updated successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating labels', error });
+  }
 };

@@ -110,8 +110,8 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; display: fl
 
 /* stili per la pagina del profilo */
 .profile-container {
-  max-width: 600px;
-  margin-top: 64px;
+  max-width: 100%;
+  margin-top: 48px;
   padding: 20px;
   background-color: #f9f9f9;
   border-radius: 8px;
@@ -148,3 +148,6 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; display: fl
   text-decoration: underline;
 }
 
+.chip-list {
+  width: 100%;
+}

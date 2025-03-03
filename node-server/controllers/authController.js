@@ -86,42 +86,6 @@ exports.logout = async (req, res) => {
   }
 };
 
-exports.getUserDetails = async (req, res) => {
-  const { username } = req.user;
-
-  const params = {
-    UserPoolId: process.env.USER_POOL_ID,
-    Username: username
-  };
-
-  try {
-    const data = await cognito.adminGetUser(params).promise();
-    const email = data.UserAttributes.find(attr => attr.Name === 'email').Value;
-    res.json({ username, email });
-  } catch (error) {
-    console.error('Errore durante il recupero dei dettagli utente: ', error);
-    res.status(400).json({ error: 'Errore durante il recupero dei dettagli utente' });
-  }
-};
-
-exports.isAccountConfirmed = async (req, res) => {
-  const { username } = req.user;
-
-  const params = {
-    UserPoolId: process.env.USER_POOL_ID,
-    Username: username
-  };
-
-  try {
-    const data = await cognito.adminGetUser(params).promise();
-    const confirmed = data.UserStatus === 'CONFIRMED';
-    res.json({ confirmed });
-  } catch (error) {
-    console.error('Errore durante il controllo dello stato dell\'account: ', error);
-    res.status(400).json({ error: 'Errore durante il controllo dello stato dell\'account' });
-  }
-};
-
 exports.requestPasswordReset = async (req, res) => {
   const { email } = req.body;
   const params = {

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, catchError, map, Observable, throwError } from 'rxjs';
+import { jwtDecode } from "jwt-decode";
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +15,7 @@ export class AuthService {
   public isLoggedIn$: Observable<boolean> = this.isLoggedInSubject.asObservable();
 
   private currentUserSubject = new BehaviorSubject<string>('');
-  public currentUser$: Observable<string> = this.currentUserSubject.asObservable();
+  public currentUsername$: Observable<string> = this.currentUserSubject.asObservable();
 
   constructor(private http: HttpClient) { 
     this.loadFromLocalStorage();  // Carica lo stato di autenticazione e l'utente dal localStorage all'avvio
@@ -43,21 +44,20 @@ export class AuthService {
   signIn(username: string, password: string): Observable<string> {
     const url = `${this.baseUrl}/signin`;
     const body = { username, password };
-    return this.http.post<{ token: string }>(url, body)
-      .pipe(
+    return this.http.post<{ token: string }>(url, body).pipe(
         map(response => {
-          // Rendere osservabili lo stato di autenticazione e lo username
           const accessToken = response.token;
           this.isLoggedInSubject.next(true);
           this.currentUserSubject.next(username);
-          // Salva il token nel localStorage
+          const decodedToken = jwtDecode<{ email: string }>(accessToken);
+          const userEmail = decodedToken.email;
+          localStorage.setItem('email', userEmail);
           localStorage.setItem('authToken', accessToken);
           localStorage.setItem('username', username);
           console.log('Login avvenuto');
           return response.token;
         }),
         catchError(err => {
-          // Gestione errori (ad esempio, notifiche o log)
           console.error('Errore login: ', err);
           throw err;
         })
@@ -73,7 +73,6 @@ export class AuthService {
   }
   
   logout(): Observable<any> {
-    // Controllo la presenza del token
     const token = this.getToken();
     if (!token) {
       throw new Error('Token non trovato!');
@@ -98,41 +97,6 @@ export class AuthService {
         localStorage.removeItem('username');
         return throwError(() => error);
       })
-    );
-  }
-
-  getDemoPage(): Observable<any> {
-    const token = this.getToken();
-    if (!token) {
-      throw new Error('No token found');
-    }
-  
-    const url = `${this.baseUrl}/demoPage`;
-    const headers = new HttpHeaders().set('Authorization', token);
-    return this.http.get(url, { headers });
-  }
-
-  getUserDetails(): Observable<any> {
-    const token = this.getToken();
-    if (!token) {
-      throw new Error('No token found');
-    }
-  
-    const url = `${this.baseUrl}/userDetails`;
-    const headers = new HttpHeaders().set('Authorization', token);
-    return this.http.get<any>(url, { headers });
-  }
-  
-  isAccountConfirmed(): Observable<boolean> {
-    const token = this.getToken();
-    if (!token) {
-      throw new Error('No token found');
-    }
-  
-    const url = `${this.baseUrl}/isConfirmed`;
-    const headers = new HttpHeaders().set('Authorization', token);
-    return this.http.get<{ confirmed: boolean }>(url, { headers }).pipe(
-      map(response => response.confirmed)
     );
   }
 
