@@ -17,10 +17,12 @@ import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/p
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { CommonModule, NgFor } from '@angular/common';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { NotificationService } from '../../services/notification.service';
 import { EmailService } from '../../services/email.service';
@@ -30,6 +32,7 @@ import { Email } from '../../models/email';
 import { Folder } from '../../models/folder';
 import { AddFolderComponent } from '../add-folder/add-folder.component';
 import { LabelsService } from '../../services/labels.service';
+import { SearchComponent } from "../search/search.component";
 
 
 @Component({
@@ -55,13 +58,15 @@ import { LabelsService } from '../../services/labels.service';
     MatCheckboxModule,
     MatDialogModule,
     MatChipsModule,
+    MatSlideToggleModule,
+    MatTooltipModule,
     FormsModule,
     ReactiveFormsModule,
     RouterLink,
-    //RouterLinkActive, disattivato per warning
     CommonModule,
     NgFor,
-  ],
+    SearchComponent
+],
   templateUrl: './mail-viewer.component.html',
 })
 export class MailViewerComponent {
@@ -78,6 +83,8 @@ export class MailViewerComponent {
   isLoadingFolders: boolean = false;
   allSelected: boolean = false;
   labels: string[] = [];
+  tagFilterMode: boolean = false;
+
 
   protected form: FormGroup = new FormGroup({
     cerca: new FormControl('', Validators.required)
@@ -327,5 +334,9 @@ export class MailViewerComponent {
         console.error('Errore durante il recupero delle etichette:', err);
       }
     });
+  }
+
+  onTagFilterModeChange(): void {
+    console.log('Modalità filtro tag cambiatia: ',this.tagFilterMode ? 'Tutti i Tag selezionati' : 'Almeno uno dei Tag');
   }
 }

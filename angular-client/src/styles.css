@@ -1,12 +1,24 @@
 /* You can add global styles to this file, and also import other style files */
 
 html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; display: flex; flex-direction: column; }
+
+body { 
+  margin: 0; 
+  font-family: Roboto, "Helvetica Neue", sans-serif; 
+  display: flex; 
+  flex-direction: column; 
+}
+
+footer {
+  flex-shrink: 0;
+}
 
 .main-container {
   margin-left: 10%;
   margin-right: 10%;
   flex: 1;
+  display: flex; 
+  flex-direction: column; 
 }
 
 .mail-viewer-container {
@@ -19,7 +31,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; display: fl
 }
 
 .div-sotto {
-  margin-top: 100px;
+  margin-top: 60px;
 }
 
 @tailwind base;
@@ -49,21 +61,16 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; display: fl
   margin-right: 16px;
 }
 
-.search-bar {
-  display: flex;
-  align-items: start;
+.mat-expansion-panel {
+  margin-bottom: 16px;
 }
 
-.search-button {
-  width: 56px;
-  height: 56px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
+/* per la barra laterale */
 .left-space {
   padding-left: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center; 
 }
 
 .remove-from-folder-button {
@@ -150,4 +157,66 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; display: fl
 
 .chip-list {
   width: 100%;
+}
+
+.hover-red:hover {
+  background-color: rgba(255, 0, 0, 0.3); /* Rosso pallido */
+}
+
+/* Stili per la search bar */
+.search-field {
+  flex: auto;
+  width: 100%;
+  margin-right: 16px;
+}
+
+.search-container {
+  display: flex;
+  flex-direction: column;
+  width: 300px;
+}
+
+.search-container .button-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.search-bar {
+  width: 400px;
+  padding: 4px 0;
+}
+
+.custom-dropdown {
+  position: absolute;
+  top: calc(100% - 20px);
+  left: 0;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 16px;
+  z-index: 1000;
+  width: 400px; 
+  display: flex;
+  flex-direction: column;
+}
+
+.small-icon-button {
+  width: 32px !important;
+  height: 32px !important;
+  padding: 0px !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+
+  & > *[role=img] {
+     width: 24px;
+     height: 24px;
+     font-size: 24px;
+  }
+
+  .mat-mdc-button-touch-target {
+     width: 24px !important;
+     height: 24px !important;
+  }
 }
