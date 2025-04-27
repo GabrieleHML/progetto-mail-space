@@ -1,6 +1,9 @@
 <div class="flex flex-col min-h-screen">
   <mat-toolbar class="bg-blue-500 text-white">
     <div class="flex items-center ml-2.5">
+      <button *ngIf="(isLoggedIn$ | async)" mat-icon-button (click)="toggleSidenav()" style="margin-right: 16px;">
+        <mat-icon>{{ sidenavOpened ? 'close' : 'menu' }}</mat-icon>
+      </button>
       <span class="text-2xl font-bold mr-2">MailSpace</span>
       <button mat-button class="text-white mr-2" style="font-size: large;" *ngIf="isLoggedIn$ | async" [routerLink]="['/mails']">Home</button>
       <button mat-button class="text-white mr-2" style="font-size: large;" *ngIf="isLoggedIn$ | async" [routerLink]="['/profile']">Profilo</button>

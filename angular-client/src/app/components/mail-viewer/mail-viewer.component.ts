@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, AfterViewInit } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -15,7 +15,7 @@ import { MasSplitButtonModule } from '@material-spirit/ngx-split-button';
 import { MatListModule } from '@angular/material/list';
 import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { RouterLink } from '@angular/router';
 import { CommonModule, NgFor } from '@angular/common';
@@ -27,12 +27,14 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { NotificationService } from '../../services/notification.service';
 import { EmailService } from '../../services/email.service';
 import { FolderService } from '../../services/folder.service';
+import { SidenavService } from '../../services/sidenav.service';
 
 import { Email } from '../../models/email';
 import { Folder } from '../../models/folder';
 import { AddFolderComponent } from '../add-folder/add-folder.component';
 import { LabelsService } from '../../services/labels.service';
 import { SearchComponent } from "../search/search.component";
+import { Subscription } from 'rxjs';
 
 
 @Component({
@@ -84,6 +86,7 @@ export class MailViewerComponent {
   allSelected: boolean = false;
   labels: string[] = [];
   tagFilterMode: boolean = false;
+  opened: boolean = false;
 
 
   protected form: FormGroup = new FormGroup({
@@ -91,14 +94,22 @@ export class MailViewerComponent {
   });
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild('sidenav') sidenav!: MatSidenav;
 
   constructor(
     private notifica: NotificationService,
     private emailService: EmailService,
     private dialog: MatDialog,
     private folderService: FolderService,
-    private labelsService: LabelsService
+    private labelsService: LabelsService,
+    private sidenavService: SidenavService
   ) { }
+
+  ngAfterViewInit(): void {
+    this.sidenavService.toggle$.subscribe(() => {
+      this.sidenav.toggle();
+    });
+  }
 
   ngOnInit(): void {
     this.isLoadingEmails = true;

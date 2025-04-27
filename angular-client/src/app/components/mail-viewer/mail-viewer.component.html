@@ -1,117 +1,123 @@
 <div style="display: flex; min-height: 100vh;">
-    <div class="left-space pt-4" style="width: 20%; display: flex; flex-direction: column; align-items: center;">
-
-        <button mat-fab extended (click)="openAddFolderDialog()" >
-            <mat-icon>folder</mat-icon>
-            Aggiungi Cartella
-        </button>
-
-        <mat-spinner *ngIf="isLoadingFolders" style="margin-top: 30px; margin-left: 30px;" diameter="30"></mat-spinner>
-        
-        <mat-list *ngIf="!isLoadingFolders && folders.length > 0" style="margin-top: 30px;">
-            <mat-list-item *ngFor="let folder of folders">
-                <div style="display: flex; align-items: center; padding-bottom: 5px; padding-top: 5px;">
-                    <button mat-stroked-button (click)="getEmailsFromFolder(folder)" style="flex: 1; margin-right: 10px; font-size: large;">{{ folder.name }}</button>
-                    <button mat-icon-button (click)="deleteFolder(folder.id)" class="hover-red" style="margin-left: 10px;">
-                        <mat-icon>delete</mat-icon>
-                    </button>
-                </div>
-            </mat-list-item>
-        </mat-list>
-
-        <div *ngIf="!isLoadingFolders && folders.length === 0" style="text-align: center; color: grey; font-size: 1.2em; margin: 20px 0;">
-            No folder yet...
+    <!-- Lato sinistro: la sidenav -->
+    <mat-sidenav-container style=" height: 100vh;">
+      <mat-sidenav #sidenav mode="side" [(opened)]="opened" opened style="width: 250px;">
+        <div style="padding-top: 20px; display: flex; flex-direction: column; align-items: center;">
+            <button mat-fab extended (click)="openAddFolderDialog()" >
+                <mat-icon>folder</mat-icon>
+                Aggiungi Cartella
+            </button>
+            <mat-spinner *ngIf="isLoadingFolders" style="margin-top: 30px; margin-left: 30px;" diameter="30"></mat-spinner>
+            <mat-list *ngIf="!isLoadingFolders && folders.length > 0" style="margin-top: 30px;">
+                <mat-list-item *ngFor="let folder of folders">
+                    <div style="display: flex; align-items: center; padding-bottom: 5px; padding-top: 5px;">
+                        <button mat-stroked-button (click)="getEmailsFromFolder(folder)" style="flex: 1; margin-right: 10px; font-size: large;">{{ folder.name }}</button>
+                        <button mat-icon-button (click)="deleteFolder(folder.id)" class="hover-red" style="margin-left: 10px;">
+                            <mat-icon>delete</mat-icon>
+                        </button>
+                    </div>
+                </mat-list-item>
+            </mat-list>
+            <div *ngIf="!isLoadingFolders && folders.length === 0" style="text-align: center; color: grey; font-size: 1.2em; margin: 20px 0;">
+                No folder yet...
+            </div>
         </div>
-
-    </div>
-    <mat-divider [vertical]="true" style="height: 100%;"></mat-divider>
-    <div class="content" style="width: 80%; margin-left: 5%;">
+      </mat-sidenav>
+      <mat-sidenav-content></mat-sidenav-content> <!-- Vuoto, serve per mantenere il layout corretto -->
+    </mat-sidenav-container>
+  
+    <!-- Lato destro: tutto il contenuto principale -->
+    <div style="flex: 1; display: flex; flex-direction: column; margin-left: 5%">
+      
+        <div class="content" style="padding: 16px; flex: 1; overflow-y: auto;">
+        <!-- Tutto il tuo contenuto principale va qui -->
+        
         <div class="my-4 flex justify-between div-sopra">
-            <div>
-                <button mat-fab extended [matMenuTriggerFor]="dropdownMenu">
-                    <mat-icon>mail</mat-icon>
-                    Aggiungi Mail
-                </button>
-                <mat-menu #dropdownMenu="matMenu">
-                    <button mat-menu-item [routerLink]="['/add-mail']">da testo</button>
-                    <button mat-menu-item (click)="fileInput.click()">da file .eml</button>
-                </mat-menu>
-                <input #fileInput type="file" (change)="onFileSelected($event)" accept=".eml" style="display: none"/>
-            </div>
-            
-            <app-search style="margin-right: 10%;"></app-search>
-            
+          <div>
+            <button mat-fab extended [matMenuTriggerFor]="dropdownMenu">
+              <mat-icon>mail</mat-icon>
+              Aggiungi Mail
+            </button>
+            <mat-menu #dropdownMenu="matMenu">
+              <button mat-menu-item [routerLink]="['/add-mail']">da testo</button>
+              <button mat-menu-item (click)="fileInput.click()">da file .eml</button>
+            </mat-menu>
+            <input #fileInput type="file" (change)="onFileSelected($event)" accept=".eml" style="display: none" />
+          </div>
+  
+          <app-search style="margin-right: 10%;"></app-search>
         </div>
-        
+  
         <div style="margin-top: 40px;">
-            <div style="display: flex; align-items: center; justify-content: space-between;">
-                <h6>Filtra per Tag</h6>
-                <div style="display: flex; align-items: center;">
-                    <span style="margin-right: 10px;">{{ tagFilterMode ? 'Tutti i Tag selezionati' : 'Almeno uno dei Tag' }}</span>
-                    <mat-slide-toggle [(ngModel)]="tagFilterMode" (change)="onTagFilterModeChange()"></mat-slide-toggle>
-                </div>
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <h6>Filtra per Tag</h6>
+            <div style="display: flex; align-items: center;">
+              <span style="margin-right: 10px;">{{ tagFilterMode ? 'Tutti i Tag selezionati' : 'Almeno uno dei Tag' }}</span>
+              <mat-slide-toggle [(ngModel)]="tagFilterMode" (change)="onTagFilterModeChange()"></mat-slide-toggle>
             </div>
-            <mat-chip-listbox multiple selectable>
-                <mat-chip-option *ngFor="let label of labels">{{ label }}</mat-chip-option>
-            </mat-chip-listbox>
+          </div>
+          <mat-chip-listbox multiple selectable>
+            <mat-chip-option *ngFor="let label of labels">{{ label }}</mat-chip-option>
+          </mat-chip-listbox>
         </div>
-        
+  
         <div class="div-sotto">
-            <div class="flex">
-                <button style="margin-right: 10px;" mat-icon-button *ngIf="selectedFolder" (click)="clearSelectedFolder()" >
-                    <mat-icon>undo</mat-icon>
-                </button>
-                <h5>{{ selectedFolder ? selectedFolder.name : 'Elenco email' }}</h5>
-            </div>
-            
-            <mat-spinner *ngIf="isLoadingEmails" diameter="50"></mat-spinner>
-            <div *ngIf="!isLoadingEmails">
-                <mat-toolbar color="primary" style="justify-content: space-between; padding: 10px; border-radius: 8px;" >
-                    <!-- Opzioni per le mail (sinistra) -->
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <mat-checkbox [checked]="allSelected" (change)="toggleAllSelection($event.source.checked)" matTooltip="Seleziona tutto"></mat-checkbox>
-                        <div class="add-to-folder-button">
-                            <button mat-icon-button [matMenuTriggerFor]="folderMenu" [disabled]="selectedEmails.size === 0" matTooltip="Aggiungi alla cartella">
-                                <mat-icon>drive_file_move</mat-icon>
-                            </button>
-                            <button mat-icon-button *ngIf="selectedFolder" class="remove-from-folder-button hover-red" (click)="removeEmailsFromFolder()" [disabled]="selectedEmails.size === 0 || !selectedFolder" matTooltip="Rimuovi dalla cartella">
-                                <mat-icon>cancel</mat-icon>
-                            </button>
-                            <button mat-icon-button (click)="deleteEmails()" class="hover-red" [disabled]="selectedEmails.size === 0" matTooltip="Elimina">
-                                <mat-icon>delete</mat-icon>
-                            </button>
-                            <mat-menu #folderMenu="matMenu">
-                                <button mat-menu-item *ngFor="let folder of folders" (click)="addEmailsToFolder(folder.id)">{{ folder.name }}</button>
-                            </mat-menu>
-                        </div>
-                    </div>
-                
-                    <!-- Paginazione (destra) -->
-                    <div style="padding-top: 0;">
-                        <mat-paginator style="border-radius: 12px; overflow: hidden;"
-                            [length]="emails.length"
-                            [pageSize]="pageSize"
-                            [pageSizeOptions]="[1, 5, 10, 25]"
-                            (page)="onPageChange($event)"
-                            aria-label="Select page">
-                        </mat-paginator>
-                    </div>
-                </mat-toolbar>
-                
-                <div *ngIf="paginatedEmails.length === 0" style="text-align: center; color: grey; font-size: 1.5em; margin: 20px 0;">
-                    {{ selectedFolder ? 'No emails here...' : 'No emails yet...' }}
+          <div class="flex">
+            <button style="margin-right: 10px;" mat-icon-button *ngIf="selectedFolder" (click)="clearSelectedFolder()" >
+              <mat-icon>undo</mat-icon>
+            </button>
+            <h5>{{ selectedFolder ? selectedFolder.name : 'Elenco email' }}</h5>
+          </div>
+  
+          <mat-spinner *ngIf="isLoadingEmails" diameter="50"></mat-spinner>
+          <div *ngIf="!isLoadingEmails">
+            <mat-toolbar color="primary" style="justify-content: space-between; padding: 10px; border-radius: 8px;">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <mat-checkbox [checked]="allSelected" (change)="toggleAllSelection($event.source.checked)" matTooltip="Seleziona tutto"></mat-checkbox>
+                <div class="add-to-folder-button">
+                  <button mat-icon-button [matMenuTriggerFor]="folderMenu" [disabled]="selectedEmails.size === 0" matTooltip="Aggiungi alla cartella">
+                    <mat-icon>drive_file_move</mat-icon>
+                  </button>
+                  <button mat-icon-button *ngIf="selectedFolder" class="remove-from-folder-button hover-red" (click)="removeEmailsFromFolder()" [disabled]="selectedEmails.size === 0 || !selectedFolder" matTooltip="Rimuovi dalla cartella">
+                    <mat-icon>cancel</mat-icon>
+                  </button>
+                  <button mat-icon-button (click)="deleteEmails()" class="hover-red" [disabled]="selectedEmails.size === 0" matTooltip="Elimina">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                  <mat-menu #folderMenu="matMenu">
+                    <button mat-menu-item *ngFor="let folder of folders" (click)="addEmailsToFolder(folder.id)">{{ folder.name }}</button>
+                  </mat-menu>
                 </div>
-                <div *ngFor="let email of paginatedEmails" style="padding-top: 20px; display: flex;">
-                    <mat-checkbox [checked]="selectedEmails.has(email)" (change)="toggleEmailSelection(email, $event.checked)" style="margin-right: 10px;"></mat-checkbox>
-                    <mat-expansion-panel style="flex: 1;">
-                        <mat-expansion-panel-header>
-                            <mat-panel-title>{{ email.sender }}</mat-panel-title>
-                            <mat-panel-description>{{ email.subject }}</mat-panel-description>
-                        </mat-expansion-panel-header>
-                        <pre style="white-space: pre-wrap;">{{ email.body }}</pre>
-                    </mat-expansion-panel>
-                </div>
+              </div>
+  
+              <div style="padding-top: 0;">
+                <mat-paginator style="border-radius: 12px; overflow: hidden;"
+                  [length]="emails.length"
+                  [pageSize]="pageSize"
+                  [pageSizeOptions]="[1, 5, 10, 25]"
+                  (page)="onPageChange($event)"
+                  aria-label="Select page">
+                </mat-paginator>
+              </div>
+            </mat-toolbar>
+  
+            <div *ngIf="paginatedEmails.length === 0" style="text-align: center; color: grey; font-size: 1.5em; margin: 20px 0;">
+              {{ selectedFolder ? 'No emails here...' : 'No emails yet...' }}
             </div>
+  
+            <div *ngFor="let email of paginatedEmails" style="padding-top: 20px; display: flex;">
+              <mat-checkbox [checked]="selectedEmails.has(email)" (change)="toggleEmailSelection(email, $event.checked)" style="margin-right: 10px;"></mat-checkbox>
+              <mat-expansion-panel style="flex: 1;">
+                <mat-expansion-panel-header>
+                  <mat-panel-title>{{ email.sender }}</mat-panel-title>
+                  <mat-panel-description>{{ email.subject }}</mat-panel-description>
+                </mat-expansion-panel-header>
+                <pre style="white-space: pre-wrap;">{{ email.body }}</pre>
+              </mat-expansion-panel>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
-</div>
+  </div>
+  

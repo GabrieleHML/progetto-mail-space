@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
 import { MatSlideToggleModule } from '@angular/material/slide-toggle'
@@ -8,6 +8,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatCardModule } from '@angular/material/card';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatListModule } from '@angular/material/list';
 import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
 import { AuthService } from './services/auth.service';
@@ -16,6 +18,8 @@ import { Observable } from 'rxjs';
 import { NotificationService } from './services/notification.service';
 import { ConfirmationCodeComponent } from './components/confirmation-code/confirmation-code.component';
 import { ForgotPwdComponent } from './components/forgot-pwd/forgot-pwd.component';
+import { MatSidenav } from '@angular/material/sidenav';
+import { SidenavService } from './services/sidenav.service';
 
 @Component({
   selector: 'app-root',
@@ -31,6 +35,8 @@ import { ForgotPwdComponent } from './components/forgot-pwd/forgot-pwd.component
     MatMenuModule,
     MatDialogModule, 
     MatCardModule,
+    MatSidenavModule,
+    MatListModule,
     CommonModule,
     LoginComponent,
     RegisterComponent
@@ -45,11 +51,15 @@ export class AppComponent implements OnInit{
   username!: string | null;
   showLogin: boolean = true;
 
+  @ViewChild('sidenav') sidenav!: MatSidenav;
+  sidenavOpened: boolean = false;
+
   constructor(
     public dialog: MatDialog,
     private authService: AuthService,
     public router: Router,
-    private notifica: NotificationService
+    private notifica: NotificationService,
+    private sidenavService: SidenavService
   ) {}
 
   ngOnInit(): void {
@@ -57,6 +67,9 @@ export class AppComponent implements OnInit{
     this.currentUser$ = this.authService.currentUsername$;
     this.authService.currentUsername$.subscribe(user => {
       this.username = user;
+    });
+    this.sidenavService.toggle$.subscribe(() => {
+      this.sidenavOpened = !this.sidenavOpened;
     });
   }
 
@@ -126,5 +139,9 @@ export class AppComponent implements OnInit{
         this.notifica.show('Password reimpostata con successo!', '');
       }
     });
+  }
+
+  toggleSidenav(): void {
+    this.sidenavService.toggle();
   }
 }
