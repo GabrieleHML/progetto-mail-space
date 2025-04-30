@@ -63,83 +63,63 @@ exports.getUserEmails = async (userEmail) => {
   }
 };
 
-exports.searchBySender = async (userEmail, sender) => {
+exports.searchByAll = async (userEmail, text) => {
   const query = `
-    SELECT *
-    FROM emails
+    SELECT * FROM emails
     WHERE user_email = $1
-    AND sender ILIKE $2
-  `;
-
-  try {
-    const result = await pool.query(query, [userEmail, `%${sender}%`]);
-    return result.rows;
-  } catch (error) {
-    console.error('Errore nella ricerca per mittente:', error);
-    throw error;
-  }
-};
-
-exports.searchByUsedTerms = async (userEmail, usedTerms) => {
-  const query = `
-    SELECT *
-    FROM emails
-    WHERE user_email = $1
-    AND EXISTS (
-      SELECT 1
-      FROM unnest(used_terms) AS term
-      WHERE term ILIKE $2
-    )
-  `;
-
-  try {
-    const result = await pool.query(query, [userEmail, `%${usedTerms}%`]);
-    return result.rows;
-  } catch (error) {
-    console.error('Errore nella ricerca per termini utilizzati:', error);
-    throw error;
-  }
-};
-
-exports.searchByTopic = async (userEmail, topic) => {
-  const query = `
-    SELECT *
-    FROM emails
-    WHERE user_email = $1
-    AND topic ILIKE $2
-  `;
-
-  try {
-    const result = await pool.query(query, [userEmail, `%${topic}%`]);
-    return result.rows;
-  } catch (error) {
-    console.error('Errore nella ricerca per argomento:', error);
-    throw error;
-  }
-};
-
-exports.searchByAll = async (userEmail, word) => {
-  const query = `
-    SELECT *
-    FROM emails
-    WHERE user_email = $1
-    AND (
-      sender ILIKE $2
-      OR subject ILIKE $2
-      OR EXISTS (
-        SELECT 1
-        FROM unnest(used_terms) AS term
-        WHERE term ILIKE $2
+      AND (
+        sender ILIKE '%' || $2 || '%'
+        OR subject ILIKE '%' || $2 || '%'
+        OR body ILIKE '%' || $2 || '%'
       )
-      OR topic ILIKE $2
-    )
   `;
 
   try {
-    const result = await pool.query(query, [userEmail, `%${word}%`]);
-    return result.rows;
+    const { rows } = await pool.query(query, [userEmail, text]);
+    return rows;
   } catch (error) {
-    console.error('Errore nella ricerca globale:', error);
+    console.error('Errore nella ricerca libera:', error);
+    throw error;
+  }
+};
+
+exports.searchAdvanced = async (userEmail, sender, subject, words) => {
+  const conditions = ['user_email = $1'];
+  const values = [userEmail];
+  let paramIndex = 2;
+
+  // Costruzione dinamica dei filtri
+  if (sender.trim()) {
+    conditions.push(`sender ILIKE '%' || $${paramIndex} || '%'`);
+    values.push(sender);
+    paramIndex++;
+  }
+
+  if (subject.trim()) {
+    conditions.push(`subject ILIKE '%' || $${paramIndex} || '%'`);
+    values.push(subject);
+    paramIndex++;
+  }
+
+  if (words.trim()) {
+    const tokens = words.split(',').map(w => w.trim()).filter(Boolean);
+    for (const token of tokens) {
+      conditions.push(`body ILIKE '%' || $${paramIndex} || '%'`);
+      values.push(token);
+      paramIndex++;
+    }
+  }
+
+  const query = `
+    SELECT * FROM emails
+    WHERE ${conditions.join(' AND ')}
+  `;
+
+  try {
+    const { rows } = await pool.query(query, values);
+    return rows;
+  } catch (error) {
+    console.error('Errore nella ricerca avanzata:', error);
     throw error;
   }
 };
@@ -273,6 +253,7 @@ exports.getLabels = async (userEmail) => {
   }
 };
 
+/* METODO UPDATE LABELS NORMALE
 exports.updateLabels = async (userEmail, labels) => {
   const query = `
     UPDATE user_labels 
@@ -288,5 +269,54 @@ exports.updateLabels = async (userEmail, labels) => {
   } catch (error) {
     console.error('Errore nell\'aggiornamento delle etichette:', error);
     throw error;
+  }
+};
+*/
+
+exports.updateLabels = async (userEmail, newLabels) => {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // 1. Recupera le etichette attuali dell'utente
+    const { rows } = await client.query(
+      'SELECT user_labels FROM user_labels WHERE user_email = $1',
+      [userEmail]
+    );
+    const currentLabels = rows[0]?.user_labels || [];
+
+    // 2. Determina quali etichette sono state rimosse
+    const removedLabels = currentLabels.filter(label => !newLabels.includes(label));
+
+    // 3. Rimuove le etichette eliminate da tutte le email dell'utente
+    for (const label of removedLabels) {
+      await client.query(
+        `
+        UPDATE emails
+        SET labels = array_remove(labels, $2)
+        WHERE user_email = $1 AND $2 = ANY(labels)
+        `,
+        [userEmail, label]
+      );
+    }
+
+    // 4. Aggiorna le etichette dell’utente
+    await client.query(
+      `
+      UPDATE user_labels
+      SET user_labels = $2
+      WHERE user_email = $1
+      `,
+      [userEmail, newLabels]
+    );
+
+    await client.query('COMMIT');
+    console.log('Etichette aggiornate correttamente e rimosse dalle email.');
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error("Errore nell'aggiornamento delle etichette:", error);
+    throw error;
+  } finally {
+    client.release();
   }
 };

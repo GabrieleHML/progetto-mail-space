@@ -45,7 +45,7 @@
             <input #fileInput type="file" (change)="onFileSelected($event)" accept=".eml" style="display: none" />
           </div>
   
-          <app-search style="margin-right: 10%;"></app-search>
+          <app-search (emailsFound)="setEmails($event)" style="margin-right: 10%;"></app-search>
         </div>
   
         <div style="margin-top: 40px;">

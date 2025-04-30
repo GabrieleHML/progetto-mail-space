@@ -113,7 +113,7 @@ export class MailViewerComponent {
 
   ngOnInit(): void {
     this.isLoadingEmails = true;
-    this.getUserEmailsOrSearchBy(0);
+    // this.getUserEmailsOrSearchBy(0);
     this.isLoadingFolders = true;
     this.getFolders();
     this.handleStateMessage();
@@ -146,7 +146,7 @@ export class MailViewerComponent {
         next: (data) => {
           console.log('File caricato con successo!', data);
           this.notifica.show("File .eml caricato con successo!", "OK");
-          this.getUserEmailsOrSearchBy(0);
+          this.getUserEmails();
         },
         error: (err) => {
           console.error('Errore caricamento file:', err);
@@ -159,6 +159,7 @@ export class MailViewerComponent {
     }
   }
 
+  /*
   getSearchOptionValue(option: string): number {
     const optionMap: { [key: string]: number } = {
       'all': 1,
@@ -186,7 +187,33 @@ export class MailViewerComponent {
       }
     });
   }
+  */
 
+  getUserEmails(): void {
+    this.pageIndex = 0;
+    this.isLoadingEmails = true;
+    this.emailService.getUserEmailsOrSearchBy(0).subscribe({
+      next: (data) => {
+        this.setEmails(data);
+      },
+      error: (err) => {
+        console.error('Errore durante il recupero delle email:', err);
+        this.isLoadingEmails = false;
+      }
+    });
+
+  }
+
+  setEmails(emails: Email[]): void {
+    this.emails = emails;
+    this.pageIndex = 0;
+    this.updatePaginatedEmails();
+    if (this.paginator) {
+      this.paginator.length = emails.length;
+    }
+    this.isLoadingEmails = false;
+  }
+  
   updatePaginatedEmails(): void {
     const startIndex = this.pageIndex * this.pageSize;
     const endIndex = startIndex + this.pageSize;
@@ -328,7 +355,7 @@ export class MailViewerComponent {
 
   clearSelectedFolder(): void {
     this.selectedFolder = null;
-    this.getUserEmailsOrSearchBy(0);
+    this.getUserEmails();
   }
 
   deselectChip(event: Event): void {

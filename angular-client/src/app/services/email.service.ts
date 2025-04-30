@@ -80,7 +80,14 @@ export class EmailService {
     );
   }
 
-  getUserEmailsOrSearchBy(option: number, word?: string): Observable<Email[]> {
+  getUserEmailsOrSearchBy(option: number, 
+    params: { 
+      freeText?: string;
+      sender?: string;
+      subject?: string;
+      words?: string; 
+     } = {}
+  ): Observable<Email[]> {
     const token = this.authService.getToken();
     if (!token) {
       return throwError(() => new Error('Token non trovato!'));
@@ -88,7 +95,12 @@ export class EmailService {
 
     const url = `${this.baseUrl}/user-emails`;
     const headers = new HttpHeaders().set('Authorization', token);
-    const body = { option, word };
+    const body: any = { option };
+
+    if (params.freeText) body.freeText = params.freeText;
+    if (params.sender) body.sender = params.sender;
+    if (params.subject) body.subject = params.subject;
+    if (params.words) body.words = params.words;
 
     return this.http.post<Email[]>(url, body, { headers }).pipe(
       map((response: Email[]) => {

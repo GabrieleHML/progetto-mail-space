@@ -5,7 +5,6 @@ const { Pool } = require('pg');
 AWS.config.update({ region: 'eu-west-1' });
 
 const cognito = new AWS.CognitoIdentityServiceProvider();
-const comprehend = new AWS.Comprehend();
 
 const pool = new Pool({
   ssl: {
@@ -20,7 +19,6 @@ const pool = new Pool({
 
 module.exports = {
   cognito,
-  comprehend,
   CLIENT_ID: process.env.COGNITO_CLIENT_ID,
   jwt_secret_key: process.env.JWT_SECRET,
   pool,
