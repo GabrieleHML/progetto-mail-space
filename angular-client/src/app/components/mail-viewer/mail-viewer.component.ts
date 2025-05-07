@@ -113,7 +113,7 @@ export class MailViewerComponent {
 
   ngOnInit(): void {
     this.isLoadingEmails = true;
-    // this.getUserEmailsOrSearchBy(0);
+    this.getUserEmails();
     this.isLoadingFolders = true;
     this.getFolders();
     this.handleStateMessage();

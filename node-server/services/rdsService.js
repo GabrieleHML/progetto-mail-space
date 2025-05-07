@@ -6,11 +6,10 @@ exports.insertEmail = async (emailData) => {
       user_email, 
       sender, 
       subject, 
-      body, 
-      used_terms, 
+      body,
       labels
     )
-    VALUES ($1, $2, $3, $4, $5, $6)
+    VALUES ($1, $2, $3, $4, $5)
     RETURNING id
   `;
     
@@ -19,7 +18,6 @@ exports.insertEmail = async (emailData) => {
     emailData.sender,
     emailData.subject,
     emailData.body,
-    emailData.usedTerms,
     emailData.labels
   ];
 
@@ -252,26 +250,6 @@ exports.getLabels = async (userEmail) => {
     throw error;
   }
 };
-
-/* METODO UPDATE LABELS NORMALE
-exports.updateLabels = async (userEmail, labels) => {
-  const query = `
-    UPDATE user_labels 
-    SET user_labels = $2 
-    WHERE user_email = $1
-  `;
-
-  const values = [userEmail, labels];
-
-  try {
-    await pool.query(query, values);
-    console.log('Le etichette sono state aggiornate con successo!');
-  } catch (error) {
-    console.error('Errore nell\'aggiornamento delle etichette:', error);
-    throw error;
-  }
-};
-*/
 
 exports.updateLabels = async (userEmail, newLabels) => {
   const client = await pool.connect();

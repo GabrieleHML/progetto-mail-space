@@ -4,8 +4,8 @@ const emlParser = require('eml-parser');
 
 const processEmail = async (sender, subject, body, userEmail, res) => {
   
-  // TODO 1. Associo le labels alla mail con API di chatGPT
-
+  // TODO 1. Associo le labels alla mail con API di AI
+  const labels = [];
   // 2. Salvo i dati nel database RDS
   try {
     const emailData = {
@@ -13,10 +13,10 @@ const processEmail = async (sender, subject, body, userEmail, res) => {
       sender,
       subject,
       body,
-      labels: []
+      labels
     };
     await rdsService.insertEmail(emailData);
-    res.json({ usedTerms });
+    res.json({ labels });
   } catch (error) {
     console.error('Errore durante il salvataggio nel database RDS');
     res.status(500).json({ message: 'Errore nel salvataggio nel database', error });
