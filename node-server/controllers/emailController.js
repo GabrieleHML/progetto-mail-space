@@ -4,13 +4,19 @@ const fs = require('fs');
 const emlParser = require('eml-parser');
 
 const processEmail = async (sender, subject, body, userEmail, res) => {
-
   const all_labels = rdsService.getLabels(userEmail); // Recupera le label dell'utente
+
+  let extracted_labels;
 
   try {
     // 1. Associo le labels alla mail con API di Gemini
-    const extracted_labels = await geminiService.classifyEmail(body, all_labels);
+    extracted_labels = await geminiService.classifyEmail(body, all_labels);
+  } catch (error) {
+    console.error('Errore durante la classificazione con Gemini:', error);
+    return res.status(500).json({ message: 'Errore nella classificazione dell\'email', error });
+  }
 
+  try {
     // 2. Salvo i dati nel database RDS
     const emailData = {
       userEmail,
@@ -22,10 +28,11 @@ const processEmail = async (sender, subject, body, userEmail, res) => {
     await rdsService.insertEmail(emailData);
     res.json({ labels: extracted_labels });
   } catch (error) {
-    console.error('Errore durante il salvataggio nel database RDS');
+    console.error('Errore durante il salvataggio nel database RDS:', error);
     res.status(500).json({ message: 'Errore nel salvataggio nel database', error });
   }
 };
+
 
 // Metodo di upload che riceve i dati dal form di mail-form.component
 exports.uploadEmail = async (req, res) => {
