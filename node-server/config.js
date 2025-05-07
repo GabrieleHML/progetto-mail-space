@@ -1,10 +1,13 @@
 require('dotenv').config();
 const AWS = require('aws-sdk');
 const { Pool } = require('pg');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
  
 AWS.config.update({ region: 'eu-west-1' });
 
 const cognito = new AWS.CognitoIdentityServiceProvider();
+
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const pool = new Pool({
   ssl: {
@@ -22,4 +25,5 @@ module.exports = {
   CLIENT_ID: process.env.COGNITO_CLIENT_ID,
   jwt_secret_key: process.env.JWT_SECRET,
   pool,
+  genAI,
 };

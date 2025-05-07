@@ -1,22 +1,26 @@
 const rdsService = require('../services/rdsService');
+const geminiService = require('../services/geminiService');
 const fs = require('fs');
 const emlParser = require('eml-parser');
 
 const processEmail = async (sender, subject, body, userEmail, res) => {
-  
-  // TODO 1. Associo le labels alla mail con API di AI
-  const labels = [];
-  // 2. Salvo i dati nel database RDS
+
+  const all_labels = rdsService.getLabels(userEmail); // Recupera le label dell'utente
+
   try {
+    // 1. Associo le labels alla mail con API di Gemini
+    const extracted_labels = await geminiService.classifyEmail(body, all_labels);
+
+    // 2. Salvo i dati nel database RDS
     const emailData = {
       userEmail,
       sender,
       subject,
       body,
-      labels
+      labels: extracted_labels
     };
     await rdsService.insertEmail(emailData);
-    res.json({ labels });
+    res.json({ labels: extracted_labels });
   } catch (error) {
     console.error('Errore durante il salvataggio nel database RDS');
     res.status(500).json({ message: 'Errore nel salvataggio nel database', error });
