@@ -5,7 +5,7 @@ const emlParser = require('eml-parser');
 
 const processEmail = async (sender, subject, body, userEmail, res) => {
   const all_labels = rdsService.getLabels(userEmail); // Recupera le label dell'utente
-
+  console.log("Labels recuperate:", all_labels);
   let extracted_labels;
 
   try {
