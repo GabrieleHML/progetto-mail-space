@@ -298,3 +298,24 @@ exports.updateLabels = async (userEmail, newLabels) => {
     client.release();
   }
 };
+
+exports.getFilteredEmails = async (userEmail, mode, labels) => {
+  let query = `
+    SELECT * FROM emails
+    WHERE user_email = $1
+  `;
+  if (labels.length > 1) {
+    if (mode) {
+      query += ` AND labels @> $2::text[]`;  // contains all
+    } else{
+      query += ` AND labels && $2::text[]`;  // overlap operator
+    }
+  }
+  try {
+    const result = await pool.query(query, [userEmail, labels]);
+    return result.rows;
+  } catch (error) {
+    console.error('Errore nel filtraggio delle email (RDS): ', error);
+    throw error;
+  }
+}

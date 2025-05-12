@@ -9,4 +9,5 @@ router.post('/upload', authenticateJWT, emailController.uploadEmail);
 router.post('/uploadFile', authenticateJWT, upload.single('emailFile'), emailController.uploadEmailFile);
 router.post('/user-emails', authenticateJWT, emailController.getUserEmailsOrSearchBy);
 router.post('/delete', authenticateJWT, emailController.deleteEmails);
+router.post('/filter', authenticateJWT, emailController.filterEmails);
 module.exports = router; 

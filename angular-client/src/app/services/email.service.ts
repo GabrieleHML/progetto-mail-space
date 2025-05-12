@@ -113,4 +113,26 @@ export class EmailService {
       })
     );
   }
+
+  filterEmails(intersection: boolean, labels: string[]): Observable<Email[]> {
+    const token = this.authService.getToken();
+    if (!token) {
+      return throwError(() => new Error('Token non trovato!'));
+    }
+
+    const url = `${this.baseUrl}/filter`;
+    const headers = new HttpHeaders().set('Authorization', token);
+    const body: any = { intersection, labels };
+    
+    return this.http.post<Email[]>(url, body, { headers }).pipe(
+      map((response: Email[]) => {
+        console.log('Email filtrate con successo!');
+        return response;
+      }), 
+      catchError((error) => {
+        console.error('Errore nel filtraggio delle email: ', error);
+        return throwError(() => new Error(`Errore nel filtraggio delle email: ${error.status} ${error.statusText}`));
+      })
+    );
+  }
 }

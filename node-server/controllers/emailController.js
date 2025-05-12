@@ -5,7 +5,6 @@ const emlParser = require('eml-parser');
 
 const processEmail = async (sender, subject, body, userEmail, res) => {
   const all_labels = await rdsService.getLabels(userEmail); // Recupera le label dell'utente
-  console.log("Labels recuperate:", all_labels);
   let extracted_labels;
 
   try {
@@ -32,7 +31,6 @@ const processEmail = async (sender, subject, body, userEmail, res) => {
     res.status(500).json({ message: 'Errore nel salvataggio nel database', error });
   }
 };
-
 
 // Metodo di upload che riceve i dati dal form di mail-form.component
 exports.uploadEmail = async (req, res) => {
@@ -142,5 +140,19 @@ exports.getUserEmailsOrSearchBy = async (req, res) => {
     res.json(emails_RDS);
   } catch (error) {
     res.status(500).json({ message: 'Errore nella ricerca delle email', error });
+  }
+};
+
+exports.filterEmails = async (req, res) => {
+  try {
+    const userEmail = req.user.email;
+    const mode = req.body.mode;
+    const labels = req.body.labels;
+
+    const filteredEmails = await rdsService.filterEmails(userEmail, mode, labels);
+    res.json(filteredEmails);
+  } catch (error) {
+    console.error('Errore durante il filtraggio delle email:', error);
+    res.status(500).json({ message: 'Errore durante il filtraggio delle email', error });
   }
 };

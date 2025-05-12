@@ -52,12 +52,17 @@
           <div style="display: flex; align-items: center; justify-content: space-between;">
             <h6>Filtra per Tag</h6>
             <div style="display: flex; align-items: center;">
-              <span style="margin-right: 10px;">{{ tagFilterMode ? 'Tutti i Tag selezionati' : 'Almeno uno dei Tag' }}</span>
-              <mat-slide-toggle [(ngModel)]="tagFilterMode" (change)="onTagFilterModeChange()"></mat-slide-toggle>
+              <mat-button-toggle-group [ngModel]="intersectionValue" (ngModelChange)="intersectionValue = $event">
+                <mat-button-toggle value="union">Unione</mat-button-toggle>
+                <mat-button-toggle value="intersection">Intersezione</mat-button-toggle>
+              </mat-button-toggle-group>
+              <button mat-icon-button style="margin-left: 10px;"  matTooltip="Seleziona il tipo di filtro: 'Unione' mostra i risultati che corrispondono ad almeno una delle etichette selezionate, 'Intersezione' mostra solo quelli che corrispondono a tutte le etichette selezionate.">
+                <mat-icon>info</mat-icon>
+              </button>
             </div>
           </div>
-          <mat-chip-listbox multiple selectable>
-            <mat-chip-option *ngFor="let label of labels">{{ label }}</mat-chip-option>
+          <mat-chip-listbox [(ngModel)]="selectedLabels" (ngModelChange)="filterEmails()" multiple>
+            <mat-chip-option *ngFor="let label of labels" [value]="label">{{ label }}</mat-chip-option>
           </mat-chip-listbox>
         </div>
   

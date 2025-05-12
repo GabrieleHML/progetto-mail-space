@@ -34,7 +34,7 @@ import { Folder } from '../../models/folder';
 import { AddFolderComponent } from '../add-folder/add-folder.component';
 import { LabelsService } from '../../services/labels.service';
 import { SearchComponent } from "../search/search.component";
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 
 
 @Component({
@@ -85,7 +85,8 @@ export class MailViewerComponent {
   isLoadingFolders: boolean = false;
   allSelected: boolean = false;
   labels: string[] = [];
-  tagFilterMode: boolean = false;
+  intersection: boolean = false;
+  selectedLabels: string[] = [];
   opened: boolean = false;
 
 
@@ -118,6 +119,7 @@ export class MailViewerComponent {
     this.getFolders();
     this.handleStateMessage();
     this.getLabels();
+    this.filterEmails();
   }
 
   handleStateMessage(): void {
@@ -158,36 +160,6 @@ export class MailViewerComponent {
       this.notifica.show("Estensione del file non valida", "OK");
     }
   }
-
-  /*
-  getSearchOptionValue(option: string): number {
-    const optionMap: { [key: string]: number } = {
-      'all': 1,
-      'sender': 2,
-      'topic': 3
-    };
-    return optionMap[option] ?? 4;
-  }
-
-  getUserEmailsOrSearchBy(option: number, word?: string): void {
-    this.pageIndex = 0; // Reset paginator
-    this.isLoadingEmails = true;
-    this.emailService.getUserEmailsOrSearchBy(option, word).subscribe({
-      next: (data) => {
-        this.emails = data;
-        this.updatePaginatedEmails();
-        if (this.paginator) {
-          this.paginator.length = this.emails.length;
-        }
-        this.isLoadingEmails = false;
-      },
-      error: (err) => {
-        console.error('Errore durante il recupero delle email:', err);
-        this.isLoadingEmails = false;
-      }
-    });
-  }
-  */
 
   getUserEmails(): void {
     this.pageIndex = 0;
@@ -374,7 +346,28 @@ export class MailViewerComponent {
     });
   }
 
-  onTagFilterModeChange(): void {
-    console.log('Modalità filtro tag cambiatia: ',this.tagFilterMode ? 'Tutti i Tag selezionati' : 'Almeno uno dei Tag');
+  get intersectionValue(): string {
+    return this.intersection ? 'intersection' : 'union';
+  }
+
+  set intersectionValue(value: string) {
+    this.intersection = value === 'intersection';
+    this.filterEmails();
+  }
+  
+  filterEmails(): void {
+    this.pageIndex = 0;
+    this.isLoadingEmails = true;
+    this.emailService
+      .filterEmails(this.intersection, this.selectedLabels)
+      .subscribe({
+        next: (data) => {
+          this.setEmails(data);
+        },
+        error: (err) => {
+          console.error('Errore durante il recupero delle email:', err);
+          this.isLoadingEmails = false;
+        }
+      });
   }
 }
