@@ -6,9 +6,9 @@ import { MatCardModule } from '@angular/material/card';
 import { ResetPwdComponent } from '../reset-pwd/reset-pwd.component';
 import { NotificationService } from '../../services/notification.service';
 import { LabelsService } from '../../services/labels.service';
-import {MatChipEditedEvent, MatChipInputEvent, MatChipsModule} from '@angular/material/chips';
-import {MatFormFieldModule} from '@angular/material/form-field';
-import {MatIconModule} from '@angular/material/icon';
+import { MatChipEditedEvent, MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
+import { MatFormFieldModule}  from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { ENTER, COMMA } from '@angular/cdk/keycodes';
 import { MatButtonModule } from '@angular/material/button';
 
@@ -32,6 +32,7 @@ export class ProfileComponent implements OnInit {
   username!: string;
   email!: string;
   labels: string[] = [];
+  originalLabels: string[] = [];
   readonly separatorKeysCodes: number[] = [ENTER, COMMA];
   addOnBlur = true;
 
@@ -62,6 +63,7 @@ export class ProfileComponent implements OnInit {
     this.labelsService.getLabels().subscribe({
       next: (data: string[]) => {
         this.labels = data;
+        this.originalLabels = [...data]; // shallow copy
       },
       error: (err) => {
         console.error('Errore durante il recupero delle etichette:', err);
@@ -97,13 +99,31 @@ export class ProfileComponent implements OnInit {
   }
 
   updateLabels(): void {
-    this.labelsService.updateLabels(this.labels).subscribe({
+    // Determino quali tag sono da rimuovere
+    const toBeRemoved = this.originalLabels.filter(
+      oldLabel => !this.labels.includes(oldLabel)
+    );
+
+    // Determino quali tag sono da aggiungere
+    const toBeAdded = this.labels.filter(
+      newLabel => !this.originalLabels.includes(newLabel)
+    );
+
+    if(toBeRemoved.length === 0 && toBeAdded.length === 0) {
+      this.notifica.show('Nessuna modifica alle etichette da salvare', 'OK');
+      return;
+    }
+
+    this.labelsService.updateLabels(toBeRemoved, toBeAdded).subscribe({
       next: (response) => {
-        console.log('Response: ',response);
-        console.log('Etichette aggiornate con successo!');
+        console.log('Etichette aggiornate con successo!', response);
+        this.notifica.show('Configurazione salvata correttamente', '');
+        // Aggiorno originalLabels con il nuovo state
+        this.originalLabels = [...this.labels];
       },
       error: (err) => {
         console.error('Errore durante l\'aggiornamento delle etichette:', err);
+        this.notifica.show('Errore nel salvataggio delle etichette', 'OK');
       }
     });
   }

@@ -32,7 +32,7 @@ export class LabelsService {
         );
     }
 
-    updateLabels(labels: string[]): Observable<any> {
+    updateLabels(toBeRemoved: string[], toBeAdded :string[]): Observable<any> {
         const token = this.authService.getToken();
         if (!token) {
             return throwError(() => new Error('Token non trovato!'));
@@ -40,14 +40,15 @@ export class LabelsService {
 
         const url = `${this.baseUrl}/update`;
         const headers = new HttpHeaders().set('Authorization', token);
-        const requestBody = { labels };
+        const requestBody = { toBeRemoved, toBeAdded };
 
-        return this.http.post(url, requestBody, { headers }).pipe(
+        return this.http.post<any>(url, requestBody, { headers }).pipe(
             map((response: any) => {
                 console.log('Etichette aggiornate con successo!');
                 return response;
             }),
             catchError((error: any) => {
+                console.log('Errore updateLabels() in labels.service.ts')
                 return throwError(() => new Error(`Errore durante l'aggiornamento delle etichette: ${error.status} ${error.statusText}`));
             })
         );

@@ -370,4 +370,9 @@ export class MailViewerComponent {
         }
       });
   }
+
+  resetLabels(): void {
+    this.selectedLabels = [];
+    this.filterEmails();
+  }
 }

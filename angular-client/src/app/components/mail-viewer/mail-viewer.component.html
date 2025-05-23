@@ -50,7 +50,17 @@
   
         <div style="margin-top: 40px;">
           <div style="display: flex; align-items: center; justify-content: space-between;">
-            <h6>Filtra per Tag</h6>
+            <div style="display: flex; align-items: center;">
+              <h6>Filtra per Tag</h6>
+              <button
+                mat-icon-button
+                (click)="resetLabels()"
+                matTooltip="Ripristina le etichette selezionate"
+                style="margin-left: 10px;"
+              >
+                <mat-icon>refresh</mat-icon>
+              </button>
+            </div>
             <div style="display: flex; align-items: center;">
               <mat-button-toggle-group [ngModel]="intersectionValue" (ngModelChange)="intersectionValue = $event">
                 <mat-button-toggle value="union">Unione</mat-button-toggle>

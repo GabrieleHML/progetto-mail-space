@@ -251,54 +251,6 @@ exports.getLabels = async (userEmail) => {
   }
 };
 
-exports.updateLabels = async (userEmail, newLabels) => {
-  const client = await pool.connect();
-  try {
-    await client.query('BEGIN');
-
-    // 1. Recupera le etichette attuali dell'utente
-    const { rows } = await client.query(
-      'SELECT user_labels FROM user_labels WHERE user_email = $1',
-      [userEmail]
-    );
-    const currentLabels = rows[0]?.user_labels || [];
-
-    // 2. Determina quali etichette sono state rimosse
-    const removedLabels = currentLabels.filter(label => !newLabels.includes(label));
-
-    // 3. Rimuove le etichette eliminate da tutte le email dell'utente
-    for (const label of removedLabels) {
-      await client.query(
-        `
-        UPDATE emails
-        SET labels = array_remove(labels, $2)
-        WHERE user_email = $1 AND $2 = ANY(labels)
-        `,
-        [userEmail, label]
-      );
-    }
-
-    // 4. Aggiorna le etichette dell’utente
-    await client.query(
-      `
-      UPDATE user_labels
-      SET user_labels = $2
-      WHERE user_email = $1
-      `,
-      [userEmail, newLabels]
-    );
-
-    await client.query('COMMIT');
-    console.log('Etichette aggiornate correttamente e rimosse dalle email.');
-  } catch (error) {
-    await client.query('ROLLBACK');
-    console.error("Errore nell'aggiornamento delle etichette:", error);
-    throw error;
-  } finally {
-    client.release();
-  }
-};
-
 exports.getFilteredEmails = async (userEmail, mode, labels) => {
   let query = `
     SELECT * FROM emails
@@ -320,8 +272,6 @@ exports.getFilteredEmails = async (userEmail, mode, labels) => {
   }
 
   try {
-    // **STAMPO qui, prima di eseguire**
-    console.log('DEBUG SQL filterEmails →', { query: query.trim(), params });
     const result = await pool.query(query, params);
     return result.rows;
   } catch (error) {
@@ -331,3 +281,45 @@ exports.getFilteredEmails = async (userEmail, mode, labels) => {
     throw error;
   }
 };
+
+exports.removeLabelsFromUserEmails = async (userEmail, toBeRemoved) => {
+  for (const label of toBeRemoved) {
+    const query = `
+      UPDATE emails
+      SET labels = array_remove(labels, $2)
+      WHERE user_email = $1
+        AND $2 = ANY(labels);
+    `;
+    await pool.query(query, [userEmail, label]);
+  }
+  
+};
+
+exports.getDistinctUserLabels = async (userEmail) => {
+  const query = `
+    SELECT DISTINCT unnest(labels) AS label 
+    FROM emails 
+    WHERE user_email = $1
+  `;
+  
+  try {
+    const result = await pool.query(query, [userEmail]);
+    return result.rows.map(r => r.label);
+  } catch (error) {
+    console.error('Errore nel filtraggio delle email (getDistinctUserLabels - RDS):', error.message);
+    console.error(error);
+    throw error;
+  }
+};
+
+exports.addLabelsToEmail = async (emailId, labels) => {
+  const query = `
+    UPDATE emails
+    SET labels = (
+      SELECT array_agg(DISTINCT elem)
+      FROM unnest(labels || $2::text[]) AS elem
+    )
+    WHERE id = $1
+  `;
+  await pool.query(query, [emailId, labels]);
+}
