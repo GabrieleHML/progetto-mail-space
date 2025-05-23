@@ -304,30 +304,30 @@ exports.getFilteredEmails = async (userEmail, mode, labels) => {
     SELECT * FROM emails
     WHERE user_email = $1
   `;
-
   const params = [userEmail];
 
   if (Array.isArray(labels) && labels.length > 0) {
     if (labels.length > 1) {
       if (mode) {
-        // mode === true -> intersezione: voglio tutte le etichette contenute
         query += ` AND labels @> $2::text[]`;
       } else {
-        // mode === false -> unione: basti che ci sia sovrapposizione
         query += ` AND labels && $2::text[]`;
       }
     } else {
       query += ` AND labels && $2::text[]`;
     }
-
     params.push(labels);
   }
 
   try {
+    // **STAMPO qui, prima di eseguire**
+    console.log('DEBUG SQL filterEmails →', { query: query.trim(), params });
     const result = await pool.query(query, params);
     return result.rows;
   } catch (error) {
-    console.error('Errore nel filtraggio delle email (RDS): ', error);
+    console.error('Errore nel filtraggio delle email (RDS):', error.message);
+    // Se vuoi vedere l’intero “stack” o dettaglio dell’errore PG:
+    console.error(error);
     throw error;
   }
-}
+};
