@@ -304,15 +304,27 @@ exports.getFilteredEmails = async (userEmail, mode, labels) => {
     SELECT * FROM emails
     WHERE user_email = $1
   `;
-  if (labels.length > 1) {
-    if (mode) {
-      query += ` AND labels @> $2::text[]`;  // contains all
-    } else{
-      query += ` AND labels && $2::text[]`;  // overlap operator
+
+  const params = [userEmail];
+
+  if (Array.isArray(labels) && labels.length > 0) {
+    if (labels.length > 1) {
+      if (mode) {
+        // mode === true -> intersezione: voglio tutte le etichette contenute
+        query += ` AND labels @> $2::text[]`;
+      } else {
+        // mode === false -> unione: basti che ci sia sovrapposizione
+        query += ` AND labels && $2::text[]`;
+      }
+    } else {
+      query += ` AND labels && $2::text[]`;
     }
+
+    params.push(labels);
   }
+
   try {
-    const result = await pool.query(query, [userEmail, labels]);
+    const result = await pool.query(query, params);
     return result.rows;
   } catch (error) {
     console.error('Errore nel filtraggio delle email (RDS): ', error);

@@ -149,10 +149,10 @@ exports.filterEmails = async (req, res) => {
     const mode = req.body.mode;
     const labels = req.body.labels;
 
-    const filteredEmails = await rdsService.filterEmails(userEmail, mode, labels);
+    const filteredEmails = await rdsService.getFilteredEmails(userEmail, mode, labels);
     res.json(filteredEmails);
   } catch (error) {
     console.error('Errore durante il filtraggio delle email:', error);
-    res.status(500).json({ message: 'Errore durante il filtraggio delle email', error });
+    res.status(500).json({ message: 'Errore durante il filtraggio delle email (Controller)', error });
   }
 };
