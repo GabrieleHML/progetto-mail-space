@@ -312,14 +312,16 @@ exports.getDistinctUserLabels = async (userEmail) => {
   }
 };
 
-exports.addLabelsToEmail = async (emailId, labels) => {
+exports.addLabelsToEmail = async (emailId, tagsToAdd) => {
+  console.log(`[rdsService.addLabelsToEmail] Sto aggiornando email id=${emailId} con tags:`, tagsToAdd);
   const query = `
     UPDATE emails
     SET labels = (
       SELECT array_agg(DISTINCT elem)
       FROM unnest(labels || $2::text[]) AS elem
     )
-    WHERE id = $1
+    WHERE id = $1;
   `;
-  await pool.query(query, [emailId, labels]);
-}
+  const result = await pool.query(query, [emailId, tagsToAdd]);
+  console.log(`[rdsService.addLabelsToEmail] Modificate ${result.rowCount} righe per email id=${emailId}.`);
+};
