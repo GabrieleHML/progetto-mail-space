@@ -12,80 +12,100 @@ exports.getLabels = async (req, res) => {
     }
 };
 
+
 exports.updateLabels = async (req, res) => {
   try {
     const userEmail = req.user.email;
     const { toBeRemoved, toBeAdded } = req.body;
 
-    // 1) Controllo validità payload e log iniziale
+    // 1) Validazione payload
     if (!Array.isArray(toBeRemoved) || !Array.isArray(toBeAdded)) {
-      console.error('[labelController.updateLabels] Payload non valido:', req.body);
+      console.error('[updateLabels] Payload non valido:', req.body);
       return res.status(400).json({ message: 'Payload non valido: toBeRemoved e toBeAdded devono essere array.' });
     }
-    console.log('[labelController.updateLabels] Chiamata da utente:', userEmail);
-    console.log('[labelController.updateLabels] toBeRemoved:', toBeRemoved);
-    console.log('[labelController.updateLabels] toBeAdded:  ', toBeAdded);
+    console.log('[updateLabels] Chiamata da utente:', userEmail);
+    console.log('[updateLabels] toBeRemoved:', toBeRemoved);
+    console.log('[updateLabels] toBeAdded:  ', toBeAdded);
 
-    // 2) Rimozione delle etichette "toBeRemoved"
+    // ──────────────────────────────────────────────────────────────────────────────
+    // 2) **AGGIORNAMENTO DELLA TABELLA user_labels**
+    //    Rimuovo le etichette che l’utente ha tolto dal suo profilo
     if (toBeRemoved.length > 0) {
-      console.log(`[labelController.updateLabels] Rimuovo ${toBeRemoved.length} etichette dalle email dell'utente...`);
-      await rdsService.removeLabelsFromUserEmails(userEmail, toBeRemoved);
-      console.log('[labelController.updateLabels] Rimozione completata.');
+      console.log(`[updateLabels] Rimuovo da user_labels: ${toBeRemoved}`);
+      await rdsService.removeLabelsFromUserLabelsTable(userEmail, toBeRemoved);
+      console.log('[updateLabels] Rimozione da user_labels completata.');
     } else {
-      console.log('[labelController.updateLabels] Nessuna etichetta da rimuovere.');
+      console.log('[updateLabels] Nessuna etichetta da rimuovere in user_labels.');
     }
 
-    // 3) Recupero tutte le email e log sul numero
+    //    Aggiungo le etichette nuove al profilo dell’utente
+    if (toBeAdded.length > 0) {
+      console.log(`[updateLabels] Aggiungo a user_labels: ${toBeAdded}`);
+      await rdsService.addLabelsToUserLabelsTable(userEmail, toBeAdded);
+      console.log('[updateLabels] Aggiunta a user_labels completata.');
+    } else {
+      console.log('[updateLabels] Nessuna etichetta da aggiungere in user_labels.');
+    }
+    // ──────────────────────────────────────────────────────────────────────────────
+
+    // 3) Rimozione dei tag scelti da ciascuna email
+    if (toBeRemoved.length > 0) {
+      console.log(`[updateLabels] Rimuovo ${toBeRemoved.length} etichette dalle email dell'utente…`);
+      await rdsService.removeLabelsFromUserEmails(userEmail, toBeRemoved);
+      console.log('[updateLabels] Rimozione dalle emails completata.');
+    } else {
+      console.log('[updateLabels] Nessuna etichetta da rimuovere dalle emails.');
+    }
+
+    // 4) Recupero tutte le email dell’utente
     const allEmails = await rdsService.getUserEmails(userEmail);
-    console.log(`[labelController.updateLabels] Recuperate ${allEmails.length} email per l'utente.`);
+    console.log(`[updateLabels] Recuperate ${allEmails.length} email per l'utente.`);
 
-    // 4) Estrazione delle etichette già esistenti, e log
+    // 5) Estrazione delle etichette rimanenti, dopo le rimozioni
     const existingLabels = await rdsService.getDistinctUserLabels(userEmail);
-    console.log('[labelController.updateLabels] Etichette esistenti (dopo rimozioni):', existingLabels);
+    console.log('[updateLabels] Etichette esistenti (dopo rimozioni):', existingLabels);
 
-    // 5) Costruisco l'insieme fullLabels e log
+    // 6) Costruisco fullLabels = existingLabels U toBeAdded
     const fullLabels = Array.from(new Set([...existingLabels, ...toBeAdded]));
-    console.log('[labelController.updateLabels] fullLabels (existing + toBeAdded):', fullLabels);
+    console.log('[updateLabels] fullLabels (existing + toBeAdded):', fullLabels);
 
-    // 6) Se non ci sono etichette da aggiungere, restituisco subito
+    // 7) Se non ci sono etichette da aggiungere, termino qui
     if (toBeAdded.length === 0) {
-      console.log('[labelController.updateLabels] Nessuna etichetta da aggiungere. Finisco qui.');
+      console.log('[updateLabels] Nessuna etichetta da aggiungere alle emails. Finisco qui.');
       return res.json({ message: 'Solo rimozioni effettuate, nessuna classificazione aggiuntiva.' });
     }
 
-    // 7) Per ciascuna email, creo una promise con classificazione + update
+    // 8) Per ciascuna email, genero la promise di classificazione + update
     const updatePromises = allEmails.map(async (email) => {
       try {
-        console.log(`  [labelController.updateLabels] Classifico email id=${email.id}…`);
+        console.log(`  [updateLabels] Classifico email id=${email.id}…`);
         const predictedLabels = await geminiService.classifyEmail(email.body, fullLabels);
-        console.log(`    [labelController.updateLabels] Risposta Gemini per email id=${email.id}:`, predictedLabels);
+        console.log(`    [updateLabels] Risposta Gemini per email id=${email.id}:`, predictedLabels);
 
-        // Individuo quali delle predictedLabels sono esattamente in toBeAdded
+        // Da predictedLabels estraggo solo i tag nuovi che voglio aggiungere (toBeAdded)
         const labelsToActuallyAdd = predictedLabels.filter(label => toBeAdded.includes(label));
-        console.log(`    [labelController.updateLabels] labelsToActuallyAdd per email id=${email.id}:`, labelsToActuallyAdd);
+        console.log(`    [updateLabels] labelsToActuallyAdd per email id=${email.id}:`, labelsToActuallyAdd);
 
         if (labelsToActuallyAdd.length > 0) {
-          console.log(`    [labelController.updateLabels] Aggiungo ${labelsToActuallyAdd} a email id=${email.id}…`);
+          console.log(`    [updateLabels] Aggiungo ${labelsToActuallyAdd} a email id=${email.id}…`);
           await rdsService.addLabelsToEmail(email.id, labelsToActuallyAdd);
-          console.log(`    [labelController.updateLabels] Aggiunte con successo per email id=${email.id}.`);
+          console.log(`    [updateLabels] Aggiunte con successo per email id=${email.id}.`);
         } else {
-          console.log(`    [labelController.updateLabels] Né nuove né existing tra toBeAdded per email id=${email.id}, salto update.`);
+          console.log(`    [updateLabels] Nessuna etichetta nuova da aggiungere per email id=${email.id}.`);
         }
       } catch (error) {
-        console.error(`  [labelController.updateLabels] Errore classifying/updating email id=${email.id}:`, error);
-        // Non interrompo il flusso: continuo con le altre email
+        console.error(`  [updateLabels] Errore classificazione/aggiornamento email id=${email.id}:`, error);
       }
     });
 
-    // 8) Attendo tutte le Promise
-    console.log('[labelController.updateLabels] Attendo il completamento di tutte le classificazioni…');
+    console.log('[updateLabels] Attendo il completamento di tutte le classificazioni…');
     await Promise.all(updatePromises);
-    console.log('[labelController.updateLabels] Tutte le email processate.');
+    console.log('[updateLabels] Tutte le email processate.');
 
     // 9) Risposta finale al client
     return res.json({ message: 'Rimozioni e classificazioni completate con successo.' });
   } catch (error) {
-    console.error('[labelController.updateLabels] Errore generale:', error);
+    console.error('[updateLabels] Errore generale:', error);
     return res.status(500).json({ message: 'Errore nell’aggiornamento delle etichette utente.', error });
   }
 };

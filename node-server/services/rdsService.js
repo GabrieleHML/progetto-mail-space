@@ -282,17 +282,30 @@ exports.getFilteredEmails = async (userEmail, mode, labels) => {
   }
 };
 
+exports.removeLabelsFromUserLabelsTable = async (userEmail, toBeRemoved) => {
+  for (const tag of toBeRemoved) {
+    console.log(`[rdsService] removeLabelsFromUserLabelsTable: rimuovo '${tag}' da user_labels per ${userEmail}`);
+    const query = `
+      UPDATE user_labels
+      SET user_labels = array_remove(user_labels, $2)
+      WHERE user_email = $1
+        AND $2 = ANY(user_labels);
+    `;
+    await pool.query(query, [userEmail, tag]);
+  }
+};
+
 exports.removeLabelsFromUserEmails = async (userEmail, toBeRemoved) => {
-  for (const label of toBeRemoved) {
+  for (const tag of toBeRemoved) {
+    console.log(`[rdsService] removeLabelsFromUserEmails: rimuovo '${tag}' dalle email di ${userEmail}`);
     const query = `
       UPDATE emails
       SET labels = array_remove(labels, $2)
-      WHERE user_email = $1
+      WHERE user_email = $1 
         AND $2 = ANY(labels);
     `;
-    await pool.query(query, [userEmail, label]);
+    await pool.query(query, [userEmail, tag]);
   }
-  
 };
 
 exports.getDistinctUserLabels = async (userEmail) => {
@@ -312,8 +325,40 @@ exports.getDistinctUserLabels = async (userEmail) => {
   }
 };
 
+exports.addLabelsToUserLabelsTable = async (userEmail, toBeAdded) => {
+  // 1) Recupero l’array corrente, per evitare duplicati “manuali”
+  const selectQ = `SELECT user_labels FROM user_labels WHERE user_email = $1`;
+  const result = await pool.query(selectQ, [userEmail]);
+  if (result.rows.length === 0) {
+    // Se non esiste ancora la riga (dovrebbe sempre esistere per ON CONFLICT DO NOTHING),
+    // ma nel dubbio inserisco una riga vuota:
+    console.log(`[rdsService] addLabelsToUserLabelsTable: Inserisco riga vuota per ${userEmail}`);
+    const insertQ = `
+      INSERT INTO user_labels (user_email, user_labels) 
+      VALUES ($1, $2)
+      ON CONFLICT (user_email) DO NOTHING;
+    `;
+    // Di default la tabella ha un array predefinito, ma noi lo costruiamo con i nuovi tag
+    await pool.query(insertQ, [userEmail, toBeAdded]);
+    return;
+  }
+
+  // 2) Calcolo l’unione con quelli già esistenti
+  const existing = result.rows[0].user_labels || [];
+  const merged = Array.from(new Set([...existing, ...toBeAdded]));
+
+  // 3) Update del record con l’array unito
+  console.log(`[rdsService] addLabelsToUserLabelsTable: aggiorno user_labels di ${userEmail} con ${merged}`);
+  const updateQ = `
+    UPDATE user_labels
+    SET user_labels = $2::text[]
+    WHERE user_email = $1;
+  `;
+  await pool.query(updateQ, [userEmail, merged]);
+};
+
 exports.addLabelsToEmail = async (emailId, tagsToAdd) => {
-  console.log(`[rdsService.addLabelsToEmail] Sto aggiornando email id=${emailId} con tags:`, tagsToAdd);
+  console.log(`[rdsService] addLabelsToEmail: email id=${emailId}, aggiungo ${tagsToAdd}`);
   const query = `
     UPDATE emails
     SET labels = (
@@ -323,5 +368,5 @@ exports.addLabelsToEmail = async (emailId, tagsToAdd) => {
     WHERE id = $1;
   `;
   const result = await pool.query(query, [emailId, tagsToAdd]);
-  console.log(`[rdsService.addLabelsToEmail] Modificate ${result.rowCount} righe per email id=${emailId}.`);
+  console.log(`[rdsService] addLabelsToEmail: Modificate ${result.rowCount} righe per email id=${emailId}.`);
 };

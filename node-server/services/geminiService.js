@@ -20,7 +20,7 @@ Rispondi con un array JSON contenente solo i tag rilevanti.
     // Estrai l'array JSON dalla risposta
     const matches = text.match(/\[.*\]/s);
     const extractedLabels = matches ? JSON.parse(matches[0]) : [];
-
+    console.log('Etichette estratte: ', extractedLabels);
     return extractedLabels;
   } catch (error) {
     console.error('Errore durante l\'analisi con Gemini:', error);
