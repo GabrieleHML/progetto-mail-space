@@ -1,6 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-
 import { MatSlideToggleModule } from '@angular/material/slide-toggle'
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
@@ -130,8 +129,8 @@ export class AppComponent implements OnInit{
 
   openForgotPwdDialog(): void {
     const dialogRef = this.dialog.open(ForgotPwdComponent, {
-      width: '400px',
-      height: '300px'
+      width: '450px',
+      autoFocus: false
     });
 
     dialogRef.afterClosed().subscribe(result => {

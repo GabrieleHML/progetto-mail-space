@@ -1,37 +1,56 @@
 <div style="display: flex; min-height: 100vh;">
     <!-- Lato sinistro: la sidenav -->
     <mat-sidenav-container style=" height: 100vh;">
-      <mat-sidenav #sidenav mode="side" [(opened)]="opened" opened style="width: 250px;">
+      <mat-sidenav #sidenav mode="side" [(opened)]="opened" opened style="width: 300px;">
         <div style="padding-top: 20px; display: flex; flex-direction: column; align-items: center;">
-            <button mat-fab extended (click)="openAddFolderDialog()" >
-                <mat-icon>folder</mat-icon>
-                Aggiungi Cartella
-            </button>
+            <div style="display: flex; justify-content: space-between; width: 80%; margin-top: 20px;">
+              <h5>Cartelle</h5>
+              <button mat-icon-button (click)="openAddFolderDialog()" matTooltip="Aggiungi cartella">
+                <mat-icon>add</mat-icon>
+              </button>
+            </div>
+            
             <mat-spinner *ngIf="isLoadingFolders" style="margin-top: 30px; margin-left: 30px;" diameter="30"></mat-spinner>
-            <mat-list *ngIf="!isLoadingFolders && folders.length > 0" style="margin-top: 30px;">
-                <mat-list-item *ngFor="let folder of folders">
-                    <div style="display: flex; align-items: center; padding-bottom: 5px; padding-top: 5px;">
-                        <button mat-stroked-button (click)="getEmailsFromFolder(folder)" style="flex: 1; margin-right: 10px; font-size: large;">{{ folder.name }}</button>
-                        <button mat-icon-button (click)="deleteFolder(folder.id)" class="hover-red" style="margin-left: 10px;">
-                            <mat-icon>delete</mat-icon>
-                        </button>
-                    </div>
-                </mat-list-item>
-            </mat-list>
+            
+
+            <mat-nav-list *ngIf="!isLoadingFolders && folders.length > 0" style="margin-top: 30px; padding: 0;">
+              <a
+                mat-list-item
+                *ngFor="let folder of folders"
+                (click)="getEmailsFromFolder(folder)"
+                [class.active-folder]="selectedFolder === folder"
+                class="folder-list-item"
+              >
+
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span class="folder-name">{{ folder.name }}</span>
+
+                  <button
+                    class="button-remove"
+                    mat-icon-button
+                    (click)="deleteFolder(folder.id); $event.stopPropagation()"
+                    [attr.aria-label]="'Elimina cartella ' + folder.name"
+                  >
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+                <div class="mat-focus-indicator"></div>
+              </a>
+            </mat-nav-list>
+
+
+
             <div *ngIf="!isLoadingFolders && folders.length === 0" style="text-align: center; color: grey; font-size: 1.2em; margin: 20px 0;">
                 No folder yet...
             </div>
         </div>
       </mat-sidenav>
-      <mat-sidenav-content></mat-sidenav-content> <!-- Vuoto, serve per mantenere il layout corretto -->
+      <mat-sidenav-content></mat-sidenav-content>
     </mat-sidenav-container>
   
     <!-- Lato destro: tutto il contenuto principale -->
     <div style="flex: 1; display: flex; flex-direction: column; margin-left: 5%">
-      
-        <div class="content" style="padding: 16px; flex: 1; overflow-y: auto;">
-        <!-- Tutto il tuo contenuto principale va qui -->
-        
+      <div class="content" style="padding: 16px; flex: 1; overflow-y: auto;">
         <div class="my-4 flex justify-between div-sopra">
           <div>
             <button mat-fab extended [matMenuTriggerFor]="dropdownMenu">
@@ -45,7 +64,7 @@
             <input #fileInput type="file" (change)="onFileSelected($event)" accept=".eml" style="display: none" />
           </div>
   
-          <app-search (emailsFound)="setEmails($event)" style="margin-right: 10%;"></app-search>
+          <app-search (emailsFound)="setEmails($event)" style="margin-right: 6%;"></app-search>
         </div>
   
         <div style="margin-top: 40px;">

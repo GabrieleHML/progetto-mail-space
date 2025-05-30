@@ -4,6 +4,7 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } 
 import { MatButton } from "@angular/material/button";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
+import { NotificationService } from '../../services/notification.service';
 import { MatInputModule } from "@angular/material/input";
 import { MatDialogRef } from "@angular/material/dialog";
 import { AuthService } from "../../services/auth.service";
@@ -29,7 +30,8 @@ export class ResetPwdComponent {
     constructor(
         private fb: FormBuilder,
         private authService: AuthService,
-        private dialogRef: MatDialogRef<ResetPwdComponent>
+        private dialogRef: MatDialogRef<ResetPwdComponent>,
+        private notifica: NotificationService,
     ) {
         this.resetPwdForm = this.fb.group({
             oldPassword: ['', Validators.required],
@@ -47,10 +49,12 @@ export class ResetPwdComponent {
             this.authService.changePassword(oldPassword, newPassword).subscribe({
                 next: () => {
                     console.log('Password modificata con successo!');
-                    this.dialogRef.close();
+                    this.dialogRef.close(true);
                 },
                 error: (err) => {
                     console.error('Errore durante la modifica della password: ', err);
+                    this.notifica.show('Errore durante la modifica della password', err.error?.message || '');
+                    this.dialogRef.close(false);
                 }
             });
         }

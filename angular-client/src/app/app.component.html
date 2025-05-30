@@ -1,54 +1,71 @@
 <div class="flex flex-col min-h-screen">
   <mat-toolbar class="bg-blue-500 text-white">
     <div class="flex items-center ml-2.5">
-      <button *ngIf="(isLoggedIn$ | async)" mat-icon-button (click)="toggleSidenav()" style="margin-right: 16px;">
+      <button *ngIf="(isLoggedIn$ | async) && !router.url.includes('/profile')" mat-icon-button (click)="toggleSidenav()" style="margin-right: 16px;">
         <mat-icon>{{ sidenavOpened ? 'close' : 'menu' }}</mat-icon>
       </button>
-      <span class="text-2xl font-bold mr-2">MailSpace</span>
-      <button mat-button class="text-white mr-2" style="font-size: large;" *ngIf="isLoggedIn$ | async" [routerLink]="['/mails']">Home</button>
-      <button mat-button class="text-white mr-2" style="font-size: large;" *ngIf="isLoggedIn$ | async" [routerLink]="['/profile']">Profilo</button>
+      <span class="text-2xl font-bold mr-2" *ngIf="!(isLoggedIn$ | async)">MailSpace</span>
+      <span class="text-2xl font-bold mr-2" role="button" *ngIf="isLoggedIn$ | async" [routerLink]="['/mails']">MailSpace</span>
     </div>
     
     <span class="flex-1"></span>
     
     <div class="flex items-center mr-5">
       <button mat-button color="primary" *ngIf="!(isLoggedIn$ | async)" (click)="openConfirmationDialog()">Conferma Account</button>
-      <span *ngIf="currentUser$ | async as username" class="mr-2">{{ username }}</span>
-      <button *ngIf="(isLoggedIn$ | async)" (click)="logout()" class="ml-2" style="margin-top: 7px;"><mat-icon>logout</mat-icon></button>
+      <div *ngIf="isLoggedIn$ | async" role="button" [matMenuTriggerFor]="menu" class="flex items-center cursor-pointer">
+        <span *ngIf="currentUser$ | async as username" class="mr-2">{{ username }}</span>
+        <button matIconButton>
+          <mat-icon>person</mat-icon>
+        </button>
+        <mat-menu #menu="matMenu" xPosition="before">
+          <button mat-menu-item [routerLink]="['/profile']">
+            <mat-icon>account_circle</mat-icon>
+            <span>Profilo</span>
+          </button>
+          <button mat-menu-item (click)="logout()">
+            <span>Esci</span>
+            <mat-icon>logout</mat-icon>
+          </button>
+        </mat-menu>
+      </div>
     </div>
   </mat-toolbar>
-
-  <div class="main-container flex-grow" [ngClass]="{'mail-viewer-container': router.url.includes('/mails')}">
-    <router-outlet></router-outlet>
-    <ng-container *ngIf="router.url === '/'">
-      <div class="home-page-container p-8">
-        <mat-card class="w-full max-w-sm p-6 flex flex-col justify-center items-center">
-          <ng-container *ngIf="showLogin; else registerTemplate">
-            <app-login></app-login>
-            <div class="text-center mt-4">
-              <a href="#" (click)="toggleForm()">Non registrato? Registrati</a>
-            </div>
-            <div class="text-center mt-2">
-              <button (click)="openForgotPwdDialog()">Hai dimenticato la password?</button>
-            </div>
-          </ng-container>
-          <ng-template #registerTemplate>
-            <app-register></app-register>
-            <div class="text-center mt-4">
-              <a href="#" (click)="toggleForm()">Hai già un account? Accedi</a>
-            </div>
-          </ng-template>
-        </mat-card>
+  
+  <div class="flex flex-col flex-grow">
+    <div class="flex-grow flex items-center justify-center">
+      <div class="w-full" [ngClass]="{'mail-viewer-container': router.url.includes('/mails')}">
+        <router-outlet></router-outlet>
+        <ng-container *ngIf="router.url === '/'">
+          <div class="home-page-container p-4 flex justify-center">
+            <mat-card class="w-full max-w-sm p-6">
+              <ng-container *ngIf="showLogin; else registerTemplate">
+                <app-login></app-login>
+                <div class="text-center mt-4">
+                  <a href="#" (click)="toggleForm()" class="hover:underline">Non registrato? Registrati</a>
+                </div>
+                <div class="text-center mt-2">
+                  <button class="hover:underline" (click)="openForgotPwdDialog()">Hai dimenticato la password?</button>
+                </div>
+              </ng-container>
+              <ng-template #registerTemplate>
+                <app-register></app-register>
+                <div class="text-center mt-4">
+                  <a href="#" (click)="toggleForm()" class="hover:underline">Hai già un account? Accedi</a>
+                </div>
+              </ng-template>
+            </mat-card>
+          </div>
+        </ng-container>
       </div>
-    </ng-container>
+    </div>
   </div>
 
-  <footer class="bg-gray-800 text-white py-4 mt-4">
+  <footer class="bg-gray-800 text-white py-4">
     <div class="container mx-auto text-center">
       <p>&copy; 2025 MailSpace. All rights reserved.</p>
-      <p>
-        <a href="/privacy" class="text-blue-400">Privacy Policy</a> | 
-        <a href="/terms" class="text-blue-400">Terms of Service</a>
+      <p class="mt-2">
+        <a href="/privacy" class="text-blue-400 hover:text-blue-300">Privacy Policy</a> | 
+        <a href="/terms" class="text-blue-400 hover:text-blue-300">Terms of Service</a>
       </p>
     </div>
   </footer>

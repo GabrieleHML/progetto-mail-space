@@ -50,12 +50,17 @@ export class ProfileComponent implements OnInit {
 
   openResetPwdDialog(): void {
     const dialogRef = this.dialog.open(ResetPwdComponent, {
-      width: '500px',
-      height: '400px'
+        width: '500px',
+        height: '600px'
     });
-  
+
     dialogRef.afterClosed().subscribe(result => {
-      this.notifica.show('Password modificata con successo!', '');
+        if (result === true) {
+            this.notifica.show('La password è stata modificata con successo!', '');
+        } else if (result === false) {
+        } else {
+            this.notifica.show('Modifica password annullata', '');
+        }
     });
   }
 

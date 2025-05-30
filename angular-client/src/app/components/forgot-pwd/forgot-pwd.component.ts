@@ -25,7 +25,8 @@ import { MatIconModule } from '@angular/material/icon';
   templateUrl: './forgot-pwd.component.html'
 })
 export class ForgotPwdComponent {
-  form: FormGroup;
+  primoForm: FormGroup;
+  secondoForm: FormGroup;
   step: number = 1;
 
   constructor(
@@ -34,20 +35,27 @@ export class ForgotPwdComponent {
     @Inject(MAT_DIALOG_DATA) public data: any,
     private dialogRef: MatDialogRef<ForgotPwdComponent>
   ) {
-    this.form = new FormGroup({
-      email: new FormControl('', [Validators.required, Validators.email]),
+    this.primoForm = new FormGroup({
+      email: new FormControl('', [Validators.required, Validators.email])
+    });
+
+    this.secondoForm = new FormGroup({
       confirmationCode: new FormControl('', Validators.required),
-      newPassword: new FormControl('', [Validators.required, Validators.minLength(8)])
+      newPassword: new FormControl('', [
+        Validators.required, 
+        Validators.minLength(8),
+        Validators.pattern(/(?=.*[0-9])(?=.*[!@#$%^&*])(?=.*[A-Z])(?=.*[a-z])/)
+      ])
     });
   }
 
   onRequestCode() {
-    if (this.form.get('email')?.invalid) {
+    if (this.primoForm.invalid) {
       this.notifica.show('Inserisci un indirizzo email valido.', 'Chiudi');
       return;
     }
 
-    const email = this.form.get('email')?.value;
+    const email = this.primoForm.get('email')?.value;
     this.authService.requestPasswordReset(email).subscribe({
       next: () => {
         this.step = 2;
@@ -61,12 +69,14 @@ export class ForgotPwdComponent {
   }
 
   onSubmit() {
-    if (this.form.invalid) {
+    if (this.secondoForm.invalid) {
       this.notifica.show('Compila correttamente il modulo.', 'Chiudi');
       return;
     }
 
-    const { email, confirmationCode, newPassword } = this.form.value;
+    const email = this.primoForm.get('email')?.value;
+    const { confirmationCode, newPassword } = this.secondoForm.value;
+    
     this.authService.resetPassword(email, confirmationCode, newPassword).subscribe({
       next: () => {
         this.dialogRef.close();

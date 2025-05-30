@@ -220,3 +220,72 @@ footer {
      height: 24px !important;
   }
 }
+
+/* Stili per le cartelle nella sidenav */
+
+/* Wrapper generale per ogni item di cartella */
+.folder-list-item {
+  display: flex;
+  align-items: center;
+  position: relative;         
+  padding-top: 12px;  
+  padding-bottom: 12px; 
+  padding-left: 16px;
+  padding-right: 16px;
+  border-bottom: none;
+}
+
+/* Il nome della cartella occupa quasi tutta la larghezza */
+.folder-name {
+  flex: 1;
+  font-size: 1.4rem;          /* dimensione del testo richiesta */
+  line-height: 1.4rem;        /* garantisce centratura verticale esatta */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Pulsante remove (inizialmente invisibile) */
+.button-remove {       
+  visibility: hidden;         
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+/* Icona delete più piccola */
+.small-icon {
+  font-size: 16px;            /* ridotta rispetto al default di 24px */
+}
+
+/* Quando il mouse passa sul folder-list-item, fai comparire il button-remove */
+.folder-list-item:hover .button-remove {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* ===== Stato “selezionato” (active-folder) ===== */
+/* Mantieni l’evidenziazione blu di Material finché selectedFolder non viene azzerato */
+.folder-list-item.active-folder {
+  background-color: rgba(224, 225, 254, 255);  /* tipico sfondo leggermente blu di Material */
+}
+
+/* Anche se il cursore non è più sopra, l’active-folder rimane finché non rimuovi la classe */
+.folder-list-item.active-folder .button-remove {
+  visibility: visible;   /* puoi decidere se far rimanere visibile la “X” anche da selezionata */
+  opacity: 1;
+}
+
+/* Mantieni il focus ring standard di Material */
+.folder-list-item:focus-within {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+/* Rimuoviamo la ripetizione di bordo fra gli item in mat-nav-list */
+mat-nav-list {
+  width: 80%;
+  padding: 0;
+}
+
+mat-nav-list .mat-list-item {
+  border-bottom: none;
+}
