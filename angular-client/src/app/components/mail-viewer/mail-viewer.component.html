@@ -74,7 +74,7 @@
               <button
                 mat-icon-button
                 (click)="resetLabels()"
-                matTooltip="Ripristina le etichette selezionate"
+                matTooltip="Ripristino"
                 style="margin-left: 10px;"
               >
                 <mat-icon>refresh</mat-icon>
@@ -82,12 +82,13 @@
             </div>
             <div style="display: flex; align-items: center;">
               <mat-button-toggle-group [ngModel]="intersectionValue" (ngModelChange)="intersectionValue = $event">
-                <mat-button-toggle value="union">Unione</mat-button-toggle>
-                <mat-button-toggle value="intersection">Intersezione</mat-button-toggle>
+                <mat-button-toggle value="union" matTooltip="Mail con ALMENO UN tag">
+                  Unione
+                </mat-button-toggle>
+                <mat-button-toggle value="intersection" matTooltip="Mail con TUTTI i tag">
+                  Intersezione
+                </mat-button-toggle>
               </mat-button-toggle-group>
-              <button mat-icon-button style="margin-left: 10px;"  matTooltip="Seleziona il tipo di filtro: 'Unione' mostra i risultati che corrispondono ad almeno una delle etichette selezionate, 'Intersezione' mostra solo quelli che corrispondono a tutte le etichette selezionate.">
-                <mat-icon>info</mat-icon>
-              </button>
             </div>
           </div>
           <mat-chip-listbox [(ngModel)]="selectedLabels" (ngModelChange)="filterEmails()" multiple>

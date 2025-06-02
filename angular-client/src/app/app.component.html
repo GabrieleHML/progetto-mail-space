@@ -4,8 +4,18 @@
       <button *ngIf="(isLoggedIn$ | async) && !router.url.includes('/profile')" mat-icon-button (click)="toggleSidenav()" style="margin-right: 16px;">
         <mat-icon>{{ sidenavOpened ? 'close' : 'menu' }}</mat-icon>
       </button>
-      <span class="text-2xl font-bold mr-2" *ngIf="!(isLoggedIn$ | async)">MailSpace</span>
-      <span class="text-2xl font-bold mr-2" role="button" *ngIf="isLoggedIn$ | async" [routerLink]="['/mails']">MailSpace</span>
+      <img 
+        *ngIf="!(isLoggedIn$ | async)"
+        src="logo.png" 
+        alt="MailSpace Logo" 
+        class="h-40 mt-6">
+      
+      <img 
+        *ngIf="isLoggedIn$ | async"
+        src="logo.png" 
+        alt="MailSpace Logo" 
+        class="h-40 mt-6 cursor-pointer" 
+        [routerLink]="['/mails']">
     </div>
     
     <span class="flex-1"></span>
@@ -33,6 +43,10 @@
   
   <div class="flex flex-col flex-grow">
     <div class="flex-grow flex items-center justify-center">
+      <img 
+        *ngIf="!(isLoggedIn$ | async)"
+        src="logo.png" 
+        alt="MailSpace Logo">
       <div class="w-full" [ngClass]="{'mail-viewer-container': router.url.includes('/mails')}">
         <router-outlet></router-outlet>
         <ng-container *ngIf="router.url === '/'">

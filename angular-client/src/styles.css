@@ -28,6 +28,8 @@ footer {
 
 .div-sopra {
   margin-bottom: 120px;
+  padding: 0 1rem;
+  align-items: center;
 }
 
 .div-sotto {
@@ -167,13 +169,13 @@ footer {
 .search-field {
   flex: auto;
   width: 100%;
-  margin-right: 16px;
 }
 
 .search-container {
   display: flex;
   flex-direction: column;
-  width: 300px;
+  width: 100%;
+  max-width: 300px; 
 }
 
 .search-container .button-container {

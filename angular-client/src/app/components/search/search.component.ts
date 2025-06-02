@@ -27,78 +27,77 @@ import { Email } from "../../models/email";
     templateUrl: "./search.component.html"
 })
 export class SearchComponent {
-    @Output() emailsFound = new EventEmitter<Email[]>();
+  @Output() emailsFound = new EventEmitter<Email[]>();
 
-    searchText: string = "";
-    sender: string = "";
-    subject: string = "";
-    body_words: string = "";
-    dropdownOpen: boolean = false;
-    constructor(
-        private notifica: NotificationService, 
-        private elementRef: ElementRef,
-        private emailService: EmailService
-    ) {}
+  searchText: string = "";
+  sender: string = "";
+  subject: string = "";
+  body_words: string = "";
+  dropdownOpen: boolean = false;
+  constructor(
+      private notifica: NotificationService, 
+      private elementRef: ElementRef,
+      private emailService: EmailService
+  ) {}
 
-    @HostListener("document:click", ["$event"])
-    onClickOutside(event: MouseEvent) {
-        const clickInside = this.elementRef.nativeElement.contains(event.target);
-        if (!clickInside) {
-            this.dropdownOpen = false;
-        }
-    }
-
-    toggleDropdown() {
-        this.dropdownOpen = !this.dropdownOpen;
-    }
-
-    onSearch() {
-        if (!this.searchText.trim()) {
-          this.notifica.show("Inserisci una parola per cercare", "Attenzione");
-          return;
-        }
-        
-        this.emailService.getUserEmailsOrSearchBy(1, {
-          freeText: this.searchText.trim()
-        }).subscribe({
-          next: (emails) => {
-            console.log('Email trovate:', emails);
-            this.emailsFound.emit(emails);
-          },
-          error: (err) => {
-            console.error(err);
-            this.notifica.show("Errore nella ricerca libera", "Errore");
-          }
-        });
+  @HostListener("document:click", ["$event"])
+  onClickOutside(event: MouseEvent) {
+      const clickInside = this.elementRef.nativeElement.contains(event.target);
+      if (!clickInside) {
+          this.dropdownOpen = false;
       }
+  }
+
+  toggleDropdown() {
+      this.dropdownOpen = !this.dropdownOpen;
+  }
+
+  onSearch() {
+    if (!this.searchText.trim()) {
+      this.notifica.show("Inserisci una parola per cercare", "Attenzione");
+      return;
+    }
+    
+    this.emailService.getUserEmailsOrSearchBy(1, {
+      freeText: this.searchText.trim()
+    }).subscribe({
+      next: (emails) => {
+        console.log('Email trovate:', emails);
+        this.emailsFound.emit(emails);
+      },
+      error: (err) => {
+        console.error(err);
+        this.notifica.show("Errore nella ricerca libera", "Errore");
+      }
+    });
+  }
       
 
-      onSearchSubmit() {
-        if (
-          !this.sender.trim() &&
-          !this.subject.trim() &&
-          !this.body_words.trim()
-        ) {
-          this.notifica.show("Compila almeno un campo della ricerca avanzata", "Attenzione");
-          return;
-        }
-      
-        this.emailService.getUserEmailsOrSearchBy(2, {
-          sender: this.sender.trim(),
-          subject: this.subject.trim(),
-          words: this.body_words.trim()
-        }).subscribe({
-          next: (emails) => {
-            console.log('Email trovate:', emails);
-            // gestisci le email ricevute
-            this.dropdownOpen = false;
-            this.emailsFound.emit(emails);
-          },
-          error: (err) => {
-            console.error(err);
-            this.notifica.show("Errore nella ricerca avanzata", "Errore");
-          }
-        });
+  onSearchSubmit() {
+    if (
+      !this.sender.trim() &&
+      !this.subject.trim() &&
+      !this.body_words.trim()
+    ) {
+      this.notifica.show("Compila almeno un campo della ricerca avanzata", "");
+      return;
+    }
+  
+    this.emailService.getUserEmailsOrSearchBy(2, {
+      sender: this.sender.trim(),
+      subject: this.subject.trim(),
+      words: this.body_words.trim()
+    }).subscribe({
+      next: (emails) => {
+        console.log('Email trovate:', emails);
+        // gestisci le email ricevute
+        this.dropdownOpen = false;
+        this.emailsFound.emit(emails);
+      },
+      error: (err) => {
+        console.error(err);
+        this.notifica.show("Errore nella ricerca avanzata", "Errore");
       }
-      
+    });
+  }
 }
