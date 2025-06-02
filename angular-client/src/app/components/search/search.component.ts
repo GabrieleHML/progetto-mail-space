@@ -10,6 +10,7 @@ import { MatToolbarModule } from "@angular/material/toolbar";
 import { NotificationService } from "../../services/notification.service";
 import { EmailService } from "../../services/email.service";
 import { Email } from "../../models/email";
+import { FilterStateService } from "../../services/filter-state.service";
 
 @Component({
     selector: "app-search",
@@ -37,7 +38,8 @@ export class SearchComponent {
   constructor(
       private notifica: NotificationService, 
       private elementRef: ElementRef,
-      private emailService: EmailService
+      private emailService: EmailService,
+      private filterStateService: FilterStateService,
   ) {}
 
   @HostListener("document:click", ["$event"])
@@ -54,12 +56,16 @@ export class SearchComponent {
 
   onSearch() {
     if (!this.searchText.trim()) {
-      this.notifica.show("Inserisci una parola per cercare", "Attenzione");
+      this.notifica.show("Inserisci una parola per cercare", "");
       return;
     }
+
+    const { selectedLabels, intersection } = this.filterStateService.getCurrentFilters();
     
     this.emailService.getUserEmailsOrSearchBy(1, {
-      freeText: this.searchText.trim()
+      freeText: this.searchText.trim(),
+      labels: selectedLabels,
+      intersection
     }).subscribe({
       next: (emails) => {
         console.log('Email trovate:', emails);
@@ -82,15 +88,18 @@ export class SearchComponent {
       this.notifica.show("Compila almeno un campo della ricerca avanzata", "");
       return;
     }
+
+    const { selectedLabels, intersection } = this.filterStateService.getCurrentFilters();
   
     this.emailService.getUserEmailsOrSearchBy(2, {
       sender: this.sender.trim(),
       subject: this.subject.trim(),
-      words: this.body_words.trim()
+      words: this.body_words.trim(),
+      labels: selectedLabels,
+      intersection
     }).subscribe({
       next: (emails) => {
         console.log('Email trovate:', emails);
-        // gestisci le email ricevute
         this.dropdownOpen = false;
         this.emailsFound.emit(emails);
       },

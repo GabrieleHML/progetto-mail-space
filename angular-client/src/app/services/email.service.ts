@@ -85,7 +85,9 @@ export class EmailService {
       freeText?: string;
       sender?: string;
       subject?: string;
-      words?: string; 
+      words?: string;
+      labels?: string[];
+      intersection?: boolean;
      } = {}
   ): Observable<Email[]> {
     const token = this.authService.getToken();
@@ -101,6 +103,8 @@ export class EmailService {
     if (params.sender) body.sender = params.sender;
     if (params.subject) body.subject = params.subject;
     if (params.words) body.words = params.words;
+    if (params.labels) body.labels = params.labels;
+    if (params.intersection !== undefined) body.intersection = params.intersection;
 
     return this.http.post<Email[]>(url, body, { headers }).pipe(
       map((response: Email[]) => {

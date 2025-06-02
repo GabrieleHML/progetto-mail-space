@@ -35,6 +35,7 @@ import { AddFolderComponent } from '../add-folder/add-folder.component';
 import { LabelsService } from '../../services/labels.service';
 import { SearchComponent } from "../search/search.component";
 import { Observable, Subscription } from 'rxjs';
+import { FilterStateService } from '../../services/filter-state.service';
 
 
 @Component({
@@ -103,7 +104,8 @@ export class MailViewerComponent {
     private dialog: MatDialog,
     private folderService: FolderService,
     private labelsService: LabelsService,
-    private sidenavService: SidenavService
+    private sidenavService: SidenavService,
+    private filterStateService: FilterStateService
   ) { }
 
   ngAfterViewInit(): void {
@@ -360,6 +362,30 @@ export class MailViewerComponent {
     this.isLoadingEmails = true;
     this.emailService
       .filterEmails(this.intersection, this.selectedLabels)
+      .subscribe({
+        next: (data) => {
+          this.setEmails(data);
+        },
+        error: (err) => {
+          console.error('Errore durante il recupero delle email:', err);
+          this.isLoadingEmails = false;
+        }
+      });
+  }
+
+  updateFilters(selectedLabels: string[], intersection: boolean): void {
+    this.filterStateService.setFilters(selectedLabels, intersection);
+    this.applyFilters();
+  }
+
+  private applyFilters(): void {
+    this.pageIndex = 0;
+    this.isLoadingEmails = true;
+    
+    const { selectedLabels, intersection } = this.filterStateService.getCurrentFilters();
+    
+    this.emailService
+      .filterEmails(intersection, selectedLabels)
       .subscribe({
         next: (data) => {
           this.setEmails(data);

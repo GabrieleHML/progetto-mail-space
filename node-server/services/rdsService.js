@@ -259,13 +259,9 @@ exports.getFilteredEmails = async (userEmail, mode, labels) => {
   const params = [userEmail];
 
   if (Array.isArray(labels) && labels.length > 0) {
-    if (labels.length > 1) {
-      if (mode) {
-        query += ` AND labels @> $2::text[]`;
-      } else {
-        query += ` AND labels && $2::text[]`;
-      }
-    } else {
+    if (mode) { // Intersezione (AND)
+      query += ` AND labels @> $2::text[]`;
+    } else { // Unione (OR)
       query += ` AND labels && $2::text[]`;
     }
     params.push(labels);
@@ -276,10 +272,42 @@ exports.getFilteredEmails = async (userEmail, mode, labels) => {
     return result.rows;
   } catch (error) {
     console.error('Errore nel filtraggio delle email (RDS):', error.message);
-    // Se vuoi vedere l’intero “stack” o dettaglio dell’errore PG:
     console.error(error);
     throw error;
   }
+};
+
+exports.searchByAllInList = async (emailList, text) => {
+  if (!text.trim()) return emailList;
+
+  return emailList.filter(email => 
+    email.sender.toLowerCase().includes(text.toLowerCase()) ||
+    email.subject.toLowerCase().includes(text.toLowerCase()) ||
+    email.body.toLowerCase().includes(text.toLowerCase())
+  );
+};
+
+exports.searchAdvancedInList = async (emailList, sender, subject, words) => {
+  let result = [...emailList];
+
+  if (sender.trim()) {
+    const senderLower = sender.toLowerCase();
+    result = result.filter(email => email.sender.toLowerCase().includes(senderLower));
+  }
+
+  if (subject.trim()) {
+    const subjectLower = subject.toLowerCase();
+    result = result.filter(email => email.subject.toLowerCase().includes(subjectLower));
+  }
+
+  if (words.trim()) {
+    const tokens = words.split(',').map(w => w.trim().toLowerCase()).filter(Boolean);
+    result = result.filter(email => 
+      tokens.some(token => email.body.toLowerCase().includes(token))
+    );
+  }
+
+  return result;
 };
 
 exports.removeLabelsFromUserLabelsTable = async (userEmail, toBeRemoved) => {

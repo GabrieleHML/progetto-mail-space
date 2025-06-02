@@ -120,21 +120,40 @@ exports.getUserEmailsOrSearchBy = async (req, res) => {
     const subject = req.body.subject || '';
     const words = req.body.words || '';
     const freeText = req.body.freeText || '';
+    const labels = req.body.labels || [];
+    const intersection = req.body.intersection || false;
 
     let emails_RDS = [];
 
-    switch (option) {
-      case 0: // Tutte le email
-        emails_RDS = await rdsService.getUserEmails(userEmail);
-        break;
-      case 1: // Ricerca semplice in sender, subject, body
-        emails_RDS = await rdsService.searchByAll(userEmail, freeText);
-        break;
-      case 2: // Ricerca avanzata con campi opzionali
-        emails_RDS = await rdsService.searchAdvanced(userEmail, sender, subject, words);
-        break;
-      default:
-        return res.status(400).json({ message: 'Opzione non valida' });
+    if (labels.length > 0) {
+      emails_RDS = await rdsService.getFilteredEmails(userEmail, intersection, labels);
+      
+      switch (option) {
+        case 0: // Tutte le email (già filtrate per tag)
+          break;
+        case 1: // Ricerca semplice in sender, subject, body
+          emails_RDS = await rdsService.searchByAllInList(emails_RDS, freeText);
+          break;
+        case 2: // Ricerca avanzata con campi opzionali
+          emails_RDS = await rdsService.searchAdvancedInList(emails_RDS, sender, subject, words);
+          break;
+        default:
+          return res.status(400).json({ message: 'Opzione non valida' });
+      }
+    } else {
+      switch (option) {
+        case 0: // Tutte le email
+          emails_RDS = await rdsService.getUserEmails(userEmail);
+          break;
+        case 1: // Ricerca semplice in sender, subject, body
+          emails_RDS = await rdsService.searchByAll(userEmail, freeText);
+          break;
+        case 2: // Ricerca avanzata con campi opzionali
+          emails_RDS = await rdsService.searchAdvanced(userEmail, sender, subject, words);
+          break;
+        default:
+          return res.status(400).json({ message: 'Opzione non valida' });
+      }
     }
 
     res.json(emails_RDS);
