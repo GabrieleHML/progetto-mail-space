@@ -80,7 +80,8 @@ export class EmailService {
     );
   }
 
-  getUserEmailsOrSearchBy(option: number, 
+  getUserEmailsOrSearchBy(
+    option: number, 
     params: { 
       freeText?: string;
       sender?: string;

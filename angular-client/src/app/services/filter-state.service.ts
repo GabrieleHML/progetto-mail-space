@@ -12,6 +12,7 @@ export class FilterStateService {
   intersection$ = this.intersectionSubject.asObservable();
 
   setFilters(selectedLabels: string[], intersection: boolean) {
+    console.log('Setting filters:', selectedLabels, intersection);
     this.selectedLabelsSubject.next(selectedLabels);
     this.intersectionSubject.next(intersection);
   }

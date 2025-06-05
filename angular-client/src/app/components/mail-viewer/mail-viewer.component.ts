@@ -20,7 +20,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { RouterLink } from '@angular/router';
 import { CommonModule, NgFor } from '@angular/common';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatChipsModule } from '@angular/material/chips';
+import { MatChipListboxChange, MatChipsModule } from '@angular/material/chips';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
@@ -121,7 +121,7 @@ export class MailViewerComponent {
     this.getFolders();
     this.handleStateMessage();
     this.getLabels();
-    this.filterEmails();
+    this.updateFilters(this.selectedLabels, this.intersection);
   }
 
   handleStateMessage(): void {
@@ -348,29 +348,26 @@ export class MailViewerComponent {
     });
   }
 
+  handleLabelChange(newLabels: string[]): void {
+    this.updateFilters(newLabels, this.intersection);
+  }
+
   get intersectionValue(): string {
     return this.intersection ? 'intersection' : 'union';
   }
 
   set intersectionValue(value: string) {
     this.intersection = value === 'intersection';
-    this.filterEmails();
+    this.updateFilters(this.selectedLabels, this.intersection);
   }
-  
-  filterEmails(): void {
-    this.pageIndex = 0;
-    this.isLoadingEmails = true;
-    this.emailService
-      .filterEmails(this.intersection, this.selectedLabels)
-      .subscribe({
-        next: (data) => {
-          this.setEmails(data);
-        },
-        error: (err) => {
-          console.error('Errore durante il recupero delle email:', err);
-          this.isLoadingEmails = false;
-        }
-      });
+
+  get selectedLabelsValue(): string[] {
+    return this.selectedLabels;
+  }
+
+  set selectedLabelsValue(value: string[]) {
+    this.selectedLabels = value;
+    this.updateFilters(value, this.intersection);
   }
 
   updateFilters(selectedLabels: string[], intersection: boolean): void {
@@ -378,7 +375,7 @@ export class MailViewerComponent {
     this.applyFilters();
   }
 
-  private applyFilters(): void {
+  applyFilters(): void {
     this.pageIndex = 0;
     this.isLoadingEmails = true;
     
@@ -399,6 +396,7 @@ export class MailViewerComponent {
 
   resetLabels(): void {
     this.selectedLabels = [];
-    this.filterEmails();
+    this.updateFilters(this.selectedLabels, this.intersection);
+    this.intersection = false;
   }
 }

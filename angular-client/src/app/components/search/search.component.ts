@@ -62,6 +62,9 @@ export class SearchComponent {
 
     const { selectedLabels, intersection } = this.filterStateService.getCurrentFilters();
     
+    console.log("Labels selezionate: ", selectedLabels);
+    console.log("Intersezione: ", intersection);
+
     this.emailService.getUserEmailsOrSearchBy(1, {
       freeText: this.searchText.trim(),
       labels: selectedLabels,
@@ -78,7 +81,6 @@ export class SearchComponent {
     });
   }
       
-
   onSearchSubmit() {
     if (
       !this.sender.trim() &&
@@ -90,7 +92,7 @@ export class SearchComponent {
     }
 
     const { selectedLabels, intersection } = this.filterStateService.getCurrentFilters();
-  
+
     this.emailService.getUserEmailsOrSearchBy(2, {
       sender: this.sender.trim(),
       subject: this.subject.trim(),

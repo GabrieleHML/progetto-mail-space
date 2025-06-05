@@ -91,7 +91,10 @@
               </mat-button-toggle-group>
             </div>
           </div>
-          <mat-chip-listbox [(ngModel)]="selectedLabels" (ngModelChange)="filterEmails()" multiple>
+          <mat-chip-listbox 
+            [(ngModel)]="selectedLabels"
+            (ngModelChange)="handleLabelChange($event)"
+            multiple>
             <mat-chip-option *ngFor="let label of labels" [value]="label">{{ label }}</mat-chip-option>
           </mat-chip-listbox>
         </div>

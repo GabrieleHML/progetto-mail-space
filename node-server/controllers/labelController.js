@@ -12,7 +12,6 @@ exports.getLabels = async (req, res) => {
     }
 };
 
-
 exports.updateLabels = async (req, res) => {
   try {
     const userEmail = req.user.email;

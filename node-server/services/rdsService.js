@@ -61,7 +61,9 @@ exports.getUserEmails = async (userEmail) => {
   }
 };
 
-exports.searchByAll = async (userEmail, text) => {
+// FUNZIONI DI RICERCA //
+
+exports.simpleSearch = async (userEmail, searchText) => {
   const query = `
     SELECT * FROM emails
     WHERE user_email = $1
@@ -73,33 +75,71 @@ exports.searchByAll = async (userEmail, text) => {
   `;
 
   try {
-    const { rows } = await pool.query(query, [userEmail, text]);
+    const { rows } = await pool.query(query, [userEmail, searchText]);
     return rows;
   } catch (error) {
-    console.error('Errore nella ricerca libera:', error);
+    console.error('Errore nella ricerca semplice:', error);
     throw error;
   }
 };
 
-exports.searchAdvanced = async (userEmail, sender, subject, words) => {
+exports.filteredSimpleSearch = async (userEmail, searchText, labels, intersection) => {
+  let query = `
+    SELECT * FROM emails
+    WHERE user_email = $1
+  `;
+  const params = [userEmail];
+  let paramIndex = 2;
+
+  // Aggiungi filtro per etichette (senza controllo ridondante)
+  if (intersection) {
+    query += ` AND labels @> $${paramIndex}::text[]`;
+  } else {
+    query += ` AND labels && $${paramIndex}::text[]`;
+  }
+  params.push(labels);
+  paramIndex++;
+
+  // Aggiungi ricerca testuale se presente
+  if (searchText && searchText.trim() !== '') {
+    query += `
+      AND (
+        sender ILIKE '%' || $${paramIndex} || '%'
+        OR subject ILIKE '%' || $${paramIndex} || '%'
+        OR body ILIKE '%' || $${paramIndex} || '%'
+      )
+    `;
+    params.push(searchText);
+  }
+
+  try {
+    const { rows } = await pool.query(query, params);
+    return rows;
+  } catch (error) {
+    console.error('Errore nella ricerca semplice filtrata:', error);
+    throw error;
+  }
+};
+
+exports.advancedSearch = async (userEmail, sender, subject, words) => {
   const conditions = ['user_email = $1'];
   const values = [userEmail];
   let paramIndex = 2;
 
   // Costruzione dinamica dei filtri
-  if (sender.trim()) {
+  if (sender && sender.trim()) {
     conditions.push(`sender ILIKE '%' || $${paramIndex} || '%'`);
     values.push(sender);
     paramIndex++;
   }
 
-  if (subject.trim()) {
+  if (subject && subject.trim()) {
     conditions.push(`subject ILIKE '%' || $${paramIndex} || '%'`);
     values.push(subject);
     paramIndex++;
   }
 
-  if (words.trim()) {
+  if (words && words.trim()) {
     const tokens = words.split(',').map(w => w.trim()).filter(Boolean);
     for (const token of tokens) {
       conditions.push(`body ILIKE '%' || $${paramIndex} || '%'`);
@@ -121,6 +161,58 @@ exports.searchAdvanced = async (userEmail, sender, subject, words) => {
     throw error;
   }
 };
+
+exports.filteredAdvancedSearch = async (userEmail, sender, subject, words, labels, intersection) => {
+  const conditions = ['user_email = $1'];
+  const values = [userEmail];
+  let paramIndex = 2;
+
+  // Aggiungi filtri per sender, subject e words
+  if (sender && sender.trim()) {
+    conditions.push(`sender ILIKE '%' || $${paramIndex} || '%'`);
+    values.push(sender);
+    paramIndex++;
+  }
+
+  if (subject && subject.trim()) {
+    conditions.push(`subject ILIKE '%' || $${paramIndex} || '%'`);
+    values.push(subject);
+    paramIndex++;
+  }
+
+  if (words && words.trim()) {
+    const tokens = words.split(',').map(w => w.trim()).filter(Boolean);
+    for (const token of tokens) {
+      conditions.push(`body ILIKE '%' || $${paramIndex} || '%'`);
+      values.push(token);
+      paramIndex++;
+    }
+  }
+
+  // Aggiungi filtro per etichette (senza controllo ridondante)
+  if (intersection) {
+    conditions.push(`labels @> $${paramIndex}::text[]`);
+  } else {
+    conditions.push(`labels && $${paramIndex}::text[]`);
+  }
+  values.push(labels);
+  paramIndex++;
+
+  const query = `
+    SELECT * FROM emails
+    WHERE ${conditions.join(' AND ')}
+  `;
+
+  try {
+    const { rows } = await pool.query(query, values);
+    return rows;
+  } catch (error) {
+    console.error('Errore nella ricerca avanzata filtrata:', error);
+    throw error;
+  }
+};
+
+// FINE FUNZIONI DI RICERCA //
 
 exports.addFolder = async (userEmail, folderName) => {
   const query = `
@@ -275,39 +367,6 @@ exports.getFilteredEmails = async (userEmail, mode, labels) => {
     console.error(error);
     throw error;
   }
-};
-
-exports.searchByAllInList = async (emailList, text) => {
-  if (!text.trim()) return emailList;
-
-  return emailList.filter(email => 
-    email.sender.toLowerCase().includes(text.toLowerCase()) ||
-    email.subject.toLowerCase().includes(text.toLowerCase()) ||
-    email.body.toLowerCase().includes(text.toLowerCase())
-  );
-};
-
-exports.searchAdvancedInList = async (emailList, sender, subject, words) => {
-  let result = [...emailList];
-
-  if (sender.trim()) {
-    const senderLower = sender.toLowerCase();
-    result = result.filter(email => email.sender.toLowerCase().includes(senderLower));
-  }
-
-  if (subject.trim()) {
-    const subjectLower = subject.toLowerCase();
-    result = result.filter(email => email.subject.toLowerCase().includes(subjectLower));
-  }
-
-  if (words.trim()) {
-    const tokens = words.split(',').map(w => w.trim().toLowerCase()).filter(Boolean);
-    result = result.filter(email => 
-      tokens.some(token => email.body.toLowerCase().includes(token))
-    );
-  }
-
-  return result;
 };
 
 exports.removeLabelsFromUserLabelsTable = async (userEmail, toBeRemoved) => {

@@ -126,30 +126,31 @@ exports.getUserEmailsOrSearchBy = async (req, res) => {
     let emails_RDS = [];
 
     if (labels.length > 0) {
-      emails_RDS = await rdsService.getFilteredEmails(userEmail, intersection, labels);
-      
+      // Caso con filtri per etichette
       switch (option) {
-        case 0: // Tutte le email (già filtrate per tag)
+        case 0: // Tutte le email filtrate per etichette
+          // emails_RDS = await rdsService.filteredSimpleSearch(userEmail, '', labels, intersection);
           break;
-        case 1: // Ricerca semplice in sender, subject, body
-          emails_RDS = await rdsService.searchByAllInList(emails_RDS, freeText);
+        case 1: // Ricerca semplice con filtri per etichette
+          emails_RDS = await rdsService.filteredSimpleSearch(userEmail, freeText, labels, intersection);
           break;
-        case 2: // Ricerca avanzata con campi opzionali
-          emails_RDS = await rdsService.searchAdvancedInList(emails_RDS, sender, subject, words);
+        case 2: // Ricerca avanzata con filtri per etichette
+          emails_RDS = await rdsService.filteredAdvancedSearch(userEmail, sender, subject, words, labels, intersection);
           break;
         default:
           return res.status(400).json({ message: 'Opzione non valida' });
       }
     } else {
+      // Caso senza filtri per etichette
       switch (option) {
         case 0: // Tutte le email
           emails_RDS = await rdsService.getUserEmails(userEmail);
           break;
-        case 1: // Ricerca semplice in sender, subject, body
-          emails_RDS = await rdsService.searchByAll(userEmail, freeText);
+        case 1: // Ricerca semplice
+          emails_RDS = await rdsService.simpleSearch(userEmail, freeText);
           break;
-        case 2: // Ricerca avanzata con campi opzionali
-          emails_RDS = await rdsService.searchAdvanced(userEmail, sender, subject, words);
+        case 2: // Ricerca avanzata
+          emails_RDS = await rdsService.advancedSearch(userEmail, sender, subject, words);
           break;
         default:
           return res.status(400).json({ message: 'Opzione non valida' });
@@ -158,7 +159,8 @@ exports.getUserEmailsOrSearchBy = async (req, res) => {
 
     res.json(emails_RDS);
   } catch (error) {
-    res.status(500).json({ message: 'Errore nella ricerca delle email', error });
+    console.error('Errore nella ricerca delle email:', error);
+    res.status(500).json({ message: 'Errore nella ricerca delle email', error: error.message });
   }
 };
 
