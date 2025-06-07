@@ -184,7 +184,8 @@ footer {
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 300px; 
+  max-width: 300px;
+  margin-right: 85px; 
 }
 
 .search-container .button-container {
