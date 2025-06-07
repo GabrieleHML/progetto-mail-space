@@ -45,12 +45,13 @@
     <div class="flex-grow flex items-center justify-center">
       <img 
         *ngIf="!(isLoggedIn$ | async)"
-        src="logo.png" 
-        alt="MailSpace Logo">
+        src="slogan.png" 
+        alt="MailSpace Logo"
+        style="padding-left: 5%;">
       <div class="w-full" [ngClass]="{'mail-viewer-container': router.url.includes('/mails')}">
         <router-outlet></router-outlet>
         <ng-container *ngIf="router.url === '/'">
-          <div class="home-page-container p-4 flex justify-center">
+          <div class="home-page-container p-4 flex justify-center" style="margin-right: 200px;">
             <mat-card class="w-full max-w-sm p-6">
               <ng-container *ngIf="showLogin; else registerTemplate">
                 <app-login></app-login>

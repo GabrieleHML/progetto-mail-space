@@ -12,7 +12,7 @@
           <mat-error *ngIf="primoForm.get('email')?.hasError('email')">Email non valida</mat-error>
         </mat-form-field>
         <div class="flex justify-end">
-          <button mat-flat-button color="primary" type="submit" [disabled]="primoForm.invalid">Ricevi codice</button>
+          <button mat-flat-button color="primary" class="button-color" type="submit" [disabled]="primoForm.invalid">Ricevi codice</button>
         </div>
       </form>
     </ng-container>
@@ -43,7 +43,7 @@
           <mat-error *ngIf="secondoForm.get('newPassword')?.hasError('minlength')">La password deve essere di almeno 6 caratteri</mat-error>
         </mat-form-field>
         <div class="flex justify-end">
-          <button mat-flat-button color="primary" type="submit" [disabled]="secondoForm.invalid">Invia</button>
+          <button mat-flat-button color="primary" class="button-color" type="submit" [disabled]="secondoForm.invalid">Invia</button>
         </div>
       </form>
     </ng-container>

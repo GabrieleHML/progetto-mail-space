@@ -14,7 +14,7 @@
       <mat-error *ngIf="form.get('confirmationCode')?.hasError('required')">Codice di conferma è obbligatori</mat-error>
     </mat-form-field>
     <div class="flex justify-end">
-      <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid">Verifica</button>
+      <button mat-flat-button color="primary" class="button-color" type="submit" [disabled]="form.invalid">Verifica</button>
     </div>
   </form>
 </div>

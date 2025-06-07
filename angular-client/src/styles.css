@@ -161,6 +161,15 @@ footer {
   width: 100%;
 }
 
+.mdc-button.button-color {
+  background-color: #7aa6c8!important;
+  color:black!important;
+}
+
+.button-add {
+  color: black !important;
+}
+
 .hover-red:hover {
   background-color: rgba(255, 0, 0, 0.3); /* Rosso pallido */
 }
