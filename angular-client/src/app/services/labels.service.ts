@@ -8,7 +8,7 @@ import { catchError, map, Observable, throwError } from "rxjs";
 })
 export class LabelsService {
     // private baseUrl = 'http://localhost:3000/labels';
-    private baseUrl = 'https://emailproject.linkpc.net/labels';
+    private baseUrl = 'https://mail-space.it/labels';
 
     constructor(private http: HttpClient, private authService: AuthService) { }
 
