@@ -1,52 +1,40 @@
-# Mail Space
+# Analisi automatica di email su Cloud
 
-## Descrizione del Progetto
-Cloud Email Analyzer è un'applicazione basata su cloud per l'estrazione automatica di informazioni dalle email utilizzando Amazon Comprehend. L'obiettivo del progetto è analizzare il contenuto testuale delle email caricate dagli utenti e identificare i termini più usati e gli argomenti trattati.
+Questo progetto è un'applicazione cloud per l'estrazione automatica di informazioni da email.
 
-L'applicazione consente agli utenti di:
-- Caricare email in formato `.eml` o testo semplice.
-- Analizzare il contenuto con Amazon Comprehend per estrarre termini chiave e argomenti.
-- Effettuare ricerche sulle email per testo e metadati (mittente, argomento, parole chiave).
-- Organizzare le email in gruppi basati sul mittente o sugli argomenti trattati.
+---
 
-## Tecnologie Utilizzate
-Il sistema è stato sviluppato utilizzando le seguenti tecnologie e servizi AWS:
-- **Frontend:** Angular
-- **Backend:** Node.js con Express
-- **Autenticazione:** Amazon Cognito
-- **Storage:** Amazon S3
-- **Database:** Amazon RDS (PostgreSQL)
-- **Analisi del Testo:** Amazon Comprehend
-- **Hosting e Virtualizzazione:** Amazon EC2
+## Descrizione del progetto
 
-## Architettura del Sistema
-1. **Caricamento Email**: L'utente carica un'email che viene salvata su Amazon S3.
-2. **Analisi del Testo**: Il backend invia il contenuto a Amazon Comprehend per l'analisi.
-3. **Salvataggio Metadati**: I termini chiave e l'argomento vengono salvati nel database.
-4. **Ricerca Avanzata**: Gli utenti possono effettuare ricerche basate sul contenuto testuale e i metadati associati.
-5. **Organizzazione Email**: Possibilità di raggruppare le email in base al mittente o agli argomenti identificati.
+L'obiettivo principale del progetto era realizzare un'applicazione in grado di analizzare un insieme di email caricate dagli utenti, estraendo e associando metadati basati sui termini più usati e sugli argomenti trattati. Queste informazioni servono a supportare diverse funzionalità, tra cui:
 
-## Requisiti del Sistema
-### Requisiti Funzionali
-- Gli utenti devono poter caricare email e visualizzarle.
-- Il sistema deve analizzare automaticamente il contenuto delle email con Amazon Comprehend.
-- Gli utenti devono poter effettuare ricerche per testo, parole chiave e argomento.
-- Le email devono poter essere organizzate per mittente o argomento.
+- **Ricerca avanzata:** Gli utenti possono effettuare ricerche sulle email caricate sia per contenuto testuale che per metadati.
+- **Raggruppamento automatico:** L'applicazione può raggruppare le email in base al nome del mittente e agli argomenti individuati.
 
-### Requisiti Non Funzionali
-- Il sistema deve essere scalabile per supportare un numero elevato di utenti.
-- Il tempo di risposta dell'analisi del testo deve essere accettabile per una buona UX.
-- L'infrastruttura deve garantire sicurezza e protezione dei dati degli utenti.
-- Il servizio deve essere accessibile tramite web browser e supportare dispositivi mobili.
+La relazione presente nel repository descrive in dettaglio l'architettura, le funzionalità e le scelte implementative del sistema.
 
-## Setup del Progetto
-### Prerequisiti
-- **Node.js** installato sulla macchina locale
-- **AWS CLI** configurato con le credenziali di accesso
-- **Database PostgreSQL** configurato su Amazon RDS
+### Architettura e Tecnologie
 
-## Contributi
-I contributi sono benvenuti! Per proposte di miglioramento, aprire una issue o una pull request su GitHub.
+L'applicazione è stata sviluppata seguendo un'architettura a microservizi distribuita su cloud, utilizzando i servizi di **Amazon Web Services (AWS)**.
 
-## Licenza
-Questo progetto è rilasciato sotto la licenza MIT.
+- **Backend:** Realizzato con **Node.js** per gestire la logica di business e le interazioni con i servizi AWS.
+- **Frontend:** Sviluppato con **Angular** per fornire un'interfaccia utente reattiva e intuitiva.
+- **Servizi Cloud:** Sono stati utilizzati i seguenti servizi AWS:
+    - **EC2:** Per l'hosting del backend e del frontend.
+    - **RDS:** Per la gestione del database relazionale.
+    - **Cognito:** Per l'autenticazione e la gestione degli utenti.
+- **AI/ML:** Per l'analisi del contenuto delle email e l'estrazione di metadati, è stato integrato un modello di **Gemini**.
+- **Server Web:** La configurazione di **NGINX** è stata usata per il reverse proxy e la gestione del traffico, i cui dettagli sono illustrati nella relazione.
+
+### Configurazione
+
+Il file `node-server/.env` presente nella repository contiene le istruzioni e le chiavi utili per completare la configurazione dell'ambiente di lavoro. Le variabili al suo interno non sono valorizzate per motivi di sicurezza, ma servono da template per il corretto avvio dell'applicazione.
+
+---
+
+## Contesto
+
+Questo progetto è stato realizzato nell'ambito del corso di **Sistemi Distribuiti e Cloud Computing** durante l'anno accademico 2024/2025 presso l'**Università della Calabria**.
+Il progetto è stato sviluppato in risposta alla seguente traccia:
+
+> "Realizzare un’applicazione su cloud per l’estrazione automatica di informazioni da email che utilizzi un servizio cloud. L’applicazione ha il compito di analizzare un insieme di email caricate dagli utenti per analizzare il loro contenuto testuale e identificare i termini più usati e gli argomenti trattati... Per la realizzazione dell’applicazione, lo studente dovrà includere un’analisi dei requisiti funzionali e non funzionali del sistema da realizzare. Il sistema realizzato, tuttavia, dovrà utilizzare le soluzioni di calcolo, storage e virtualizzazione messe a disposizione da Amazon AWS."
